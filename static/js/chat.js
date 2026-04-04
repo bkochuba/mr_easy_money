@@ -96,35 +96,63 @@
         // Init speech recognition
         if (hasVoice) {
             recognition = new SpeechRecognition();
-            recognition.continuous = false;
+            recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = "en-US";
 
-            recognition.onresult = function (e) {
-                let transcript = "";
-                for (let i = e.resultIndex; i < e.results.length; i++) {
-                    transcript += e.results[i][0].transcript;
-                }
-                document.getElementById("voice-status").textContent = transcript || "Listening...";
+            let finalTranscript = "";
+            let speechTimeout = null;
 
-                if (e.results[e.results.length - 1].isFinal) {
-                    stopListening();
-                    if (transcript.trim()) {
-                        addMessage("user", transcript.trim());
-                        messages.push({ role: "user", content: transcript.trim() });
-                        streamResponse(true);
+            recognition.onresult = function (e) {
+                let interim = "";
+                finalTranscript = "";
+                for (let i = 0; i < e.results.length; i++) {
+                    if (e.results[i].isFinal) {
+                        finalTranscript += e.results[i][0].transcript;
+                    } else {
+                        interim += e.results[i][0].transcript;
                     }
+                }
+                const display = finalTranscript + interim;
+                document.getElementById("voice-status").textContent = display || "Listening...";
+
+                // When we get final speech, wait 1.5s of silence then send
+                if (finalTranscript.trim()) {
+                    clearTimeout(speechTimeout);
+                    speechTimeout = setTimeout(function () {
+                        const text = finalTranscript.trim();
+                        finalTranscript = "";
+                        stopListening();
+                        if (text) {
+                            addMessage("user", text);
+                            messages.push({ role: "user", content: text });
+                            streamResponse(true);
+                        }
+                    }, 1500);
                 }
             };
 
             recognition.onerror = function (e) {
                 console.error("Speech error:", e.error);
+                // no-speech and aborted are non-fatal — just restart
+                if (e.error === "no-speech" || e.error === "aborted") {
+                    // Will auto-restart via onend handler
+                    return;
+                }
+                // For real errors (not-allowed, network), stop
                 stopListening();
-                document.getElementById("voice-status").textContent = "Couldn't hear that. Try again.";
+                if (e.error === "not-allowed") {
+                    document.getElementById("voice-status").textContent = "Mic access denied. Check browser permissions.";
+                } else {
+                    document.getElementById("voice-status").textContent = "Mic error: " + e.error + ". Try again.";
+                }
             };
 
             recognition.onend = function () {
-                if (isListening) stopListening();
+                // Auto-restart if we're still supposed to be listening
+                if (isListening && !isStreaming) {
+                    try { recognition.start(); } catch (e) { /* already started */ }
+                }
             };
         }
     }
