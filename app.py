@@ -463,6 +463,78 @@ def chat():
     )
 
 
+@app.route("/api/voice", methods=["POST"])
+def voice_chat():
+    """Accept audio, transcribe with Gemini, get Mr. Easy Money response, return text."""
+    if not GEMINI_API_KEY:
+        return jsonify({"error": "Voice chat unavailable. API key not configured."}), 503
+
+    try:
+        from google import genai
+        from google.genai import types
+    except ImportError:
+        return jsonify({"error": "Google GenAI SDK not installed."}), 503
+
+    if "audio" not in request.files:
+        return jsonify({"error": "No audio file provided."}), 400
+
+    audio_file = request.files["audio"]
+    audio_bytes = audio_file.read()
+
+    if len(audio_bytes) < 100:
+        return jsonify({"error": "Audio too short."}), 400
+
+    # Get conversation history from form data
+    history_json = request.form.get("history", "[]")
+    try:
+        history = json.loads(history_json)
+    except json.JSONDecodeError:
+        history = []
+
+    client = genai.Client(api_key=GEMINI_API_KEY)
+
+    # Step 1: Transcribe audio with Gemini
+    try:
+        transcribe_resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[
+                types.Part.from_bytes(data=audio_bytes, mime_type="audio/webm"),
+                "Transcribe this audio exactly. Return ONLY the transcription, nothing else.",
+            ],
+        )
+        user_text = transcribe_resp.text.strip()
+        if not user_text:
+            return jsonify({"error": "Couldn't understand the audio. Try again."}), 400
+    except Exception as e:
+        return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
+
+    # Step 2: Get Mr. Easy Money response
+    history = history[-18:]  # Keep manageable
+    gemini_contents = []
+    for msg in history:
+        role = "user" if msg["role"] == "user" else "model"
+        gemini_contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+    gemini_contents.append({"role": "user", "parts": [{"text": user_text}]})
+
+    try:
+        chat_resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=gemini_contents,
+            config={
+                "system_instruction": SYSTEM_PROMPT + "\nKeep responses under 3 sentences since this is a voice conversation. Be punchy and conversational.",
+                "max_output_tokens": 512,
+            },
+        )
+        assistant_text = chat_resp.text.strip()
+    except Exception as e:
+        return jsonify({"error": f"Response generation failed: {str(e)}"}), 500
+
+    return jsonify({
+        "user_text": user_text,
+        "assistant_text": assistant_text,
+    })
+
+
 @app.route("/api/starmap", methods=["POST"])
 def starmap():
     data = request.json or {}

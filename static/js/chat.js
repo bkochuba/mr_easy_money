@@ -1,4 +1,4 @@
-// Mr. Easy Money Chat Widget — with Voice Mode
+// Mr. Easy Money Chat Widget — with Server-Side Voice Mode
 (function () {
     const WELCOME = "Hey there! I'm Mr. Easy Money. Ask me anything about budgeting, saving, investing, getting out of debt, or the Money Glow-Up course. No judgment, just real talk. Easy money, easy life! What's on your mind?";
 
@@ -6,13 +6,13 @@
     let isOpen = false;
     let isStreaming = false;
     let voiceMode = false;
-    let recognition = null;
-    let isListening = false;
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
     let synth = window.speechSynthesis;
 
-    // Check for speech recognition support
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const hasVoice = !!SpeechRecognition;
+    // Voice is available if browser supports MediaRecorder (virtually all modern browsers)
+    const hasVoice = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
 
     function createWidget() {
         // Floating button
@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-            <!-- Voice mode visualizer (hidden by default) -->
+            <!-- Voice mode area (hidden by default) -->
             <div id="voice-visualizer" class="hidden border-t border-gray-700 p-4 flex-shrink-0">
                 <div class="flex flex-col items-center gap-3">
                     <div id="voice-waves" class="flex items-center gap-1 h-8">
@@ -67,7 +67,7 @@
                         <div class="voice-bar w-1 bg-emerald-500 rounded-full" style="height:12px"></div>
                         <div class="voice-bar w-1 bg-emerald-400 rounded-full" style="height:8px"></div>
                     </div>
-                    <div id="voice-status" class="text-gray-400 text-xs">Click the mic to start talking</div>
+                    <div id="voice-status" class="text-gray-400 text-xs">Tap mic to talk &bull; Tap again to send</div>
                     <button id="mic-btn" onclick="window.__mrem_toggleMic()" class="w-14 h-14 rounded-full bg-gray-800 border-2 border-gray-600 flex items-center justify-center hover:border-amber-500 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -92,76 +92,10 @@
             e.preventDefault();
             sendMessage();
         };
-
-        // Init speech recognition
-        if (hasVoice) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = "en-US";
-
-            let finalTranscript = "";
-            let speechTimeout = null;
-
-            recognition.onresult = function (e) {
-                let interim = "";
-                finalTranscript = "";
-                for (let i = 0; i < e.results.length; i++) {
-                    if (e.results[i].isFinal) {
-                        finalTranscript += e.results[i][0].transcript;
-                    } else {
-                        interim += e.results[i][0].transcript;
-                    }
-                }
-                const display = finalTranscript + interim;
-                document.getElementById("voice-status").textContent = display || "Listening...";
-
-                // When we get final speech, wait 1.5s of silence then send
-                if (finalTranscript.trim()) {
-                    clearTimeout(speechTimeout);
-                    speechTimeout = setTimeout(function () {
-                        const text = finalTranscript.trim();
-                        finalTranscript = "";
-                        stopListening();
-                        if (text) {
-                            addMessage("user", text);
-                            messages.push({ role: "user", content: text });
-                            streamResponse(true);
-                        }
-                    }, 1500);
-                }
-            };
-
-            recognition.onerror = function (e) {
-                console.error("Speech error:", e.error);
-                // no-speech and aborted are non-fatal — just restart
-                if (e.error === "no-speech" || e.error === "aborted") {
-                    // Will auto-restart via onend handler
-                    return;
-                }
-                // For real errors, stop and show helpful message
-                stopListening();
-                if (e.error === "not-allowed") {
-                    document.getElementById("voice-status").textContent = "Mic access denied. Check browser permissions.";
-                } else if (e.error === "network") {
-                    document.getElementById("voice-status").textContent = "Voice requires Chrome/Edge + internet. Try typing instead.";
-                    // Auto-switch to text mode after network error
-                    setTimeout(function() { if (voiceMode) window.__mrem_toggleVoice(); }, 3000);
-                } else {
-                    document.getElementById("voice-status").textContent = "Mic error: " + e.error + ". Try again.";
-                }
-            };
-
-            recognition.onend = function () {
-                // Auto-restart if we're still supposed to be listening
-                if (isListening && !isStreaming) {
-                    try { recognition.start(); } catch (e) { /* already started */ }
-                }
-            };
-        }
     }
 
-    // Expose voice controls globally (for onclick in HTML)
+    // ========== Voice Controls ==========
+
     window.__mrem_toggleVoice = function () {
         voiceMode = !voiceMode;
         const voiceVis = document.getElementById("voice-visualizer");
@@ -180,40 +114,139 @@
             textArea.classList.remove("hidden");
             voiceBtn.classList.remove("bg-black/20", "rounded-lg");
             subtitle.textContent = "Your AI Finance Coach";
-            if (isListening) stopListening();
+            if (isRecording) stopRecording(true); // discard
             if (synth) synth.cancel();
         }
     };
 
     window.__mrem_toggleMic = function () {
-        if (isListening) {
-            stopListening();
+        if (isStreaming) return;
+        if (isRecording) {
+            stopRecording(false); // stop and send
         } else {
-            startListening();
+            startRecording();
         }
     };
 
-    function startListening() {
-        if (!recognition || isStreaming) return;
-        isListening = true;
-        const micBtn = document.getElementById("mic-btn");
-        micBtn.classList.add("border-red-500", "bg-red-500/20");
-        micBtn.classList.remove("border-gray-600", "bg-gray-800");
-        document.getElementById("voice-status").textContent = "Listening...";
-        animateVoiceBars(true);
-        try { recognition.start(); } catch (e) { /* already started */ }
+    async function startRecording() {
+        if (isStreaming) return;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioChunks = [];
+
+            // Try webm first, fall back to other formats
+            const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+                ? "audio/webm;codecs=opus"
+                : MediaRecorder.isTypeSupported("audio/webm")
+                    ? "audio/webm"
+                    : "";
+
+            mediaRecorder = mimeType
+                ? new MediaRecorder(stream, { mimeType })
+                : new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = function (e) {
+                if (e.data.size > 0) audioChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = function () {
+                // Stop all tracks to release the mic
+                stream.getTracks().forEach(t => t.stop());
+            };
+
+            mediaRecorder.start(100); // collect chunks every 100ms
+            isRecording = true;
+
+            const micBtn = document.getElementById("mic-btn");
+            micBtn.classList.add("border-red-500", "bg-red-500/20");
+            micBtn.classList.remove("border-gray-600", "bg-gray-800");
+            document.getElementById("voice-status").textContent = "Recording... Tap mic to send";
+            animateVoiceBars(true);
+        } catch (err) {
+            console.error("Mic error:", err);
+            document.getElementById("voice-status").textContent =
+                err.name === "NotAllowedError"
+                    ? "Mic access denied. Check browser permissions."
+                    : "Mic error. Please try again.";
+        }
     }
 
-    function stopListening() {
-        isListening = false;
+    function stopRecording(discard) {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") return;
+
+        isRecording = false;
         const micBtn = document.getElementById("mic-btn");
-        if (micBtn) {
-            micBtn.classList.remove("border-red-500", "bg-red-500/20");
-            micBtn.classList.add("border-gray-600", "bg-gray-800");
-        }
+        micBtn.classList.remove("border-red-500", "bg-red-500/20");
+        micBtn.classList.add("border-gray-600", "bg-gray-800");
         animateVoiceBars(false);
-        try { recognition.stop(); } catch (e) { /* already stopped */ }
+
+        if (discard) {
+            mediaRecorder.stop();
+            document.getElementById("voice-status").textContent = "Tap mic to talk";
+            return;
+        }
+
+        // Wait for final data then send
+        mediaRecorder.onstop = function () {
+            // Release mic
+            if (mediaRecorder.stream) {
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+            }
+            if (audioChunks.length === 0) {
+                document.getElementById("voice-status").textContent = "No audio captured. Try again.";
+                return;
+            }
+            const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+            sendVoice(audioBlob);
+        };
+        mediaRecorder.stop();
+        document.getElementById("voice-status").textContent = "Processing...";
     }
+
+    async function sendVoice(audioBlob) {
+        isStreaming = true;
+        animateVoiceBars(true);
+        document.getElementById("voice-status").textContent = "Thinking...";
+
+        try {
+            const formData = new FormData();
+            formData.append("audio", audioBlob, "voice.webm");
+            formData.append("history", JSON.stringify(messages));
+
+            const res = await fetch("/api/voice", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Voice chat failed");
+            }
+
+            // Show transcribed user text
+            addMessage("user", data.user_text);
+            messages.push({ role: "user", content: data.user_text });
+
+            // Show and speak assistant response
+            addMessage("assistant", data.assistant_text);
+            messages.push({ role: "assistant", content: data.assistant_text });
+
+            if (messages.length > 20) messages = messages.slice(-20);
+
+            // Speak the response
+            speak(data.assistant_text);
+
+        } catch (err) {
+            console.error("Voice error:", err);
+            document.getElementById("voice-status").textContent = "Error: " + err.message;
+            animateVoiceBars(false);
+        } finally {
+            isStreaming = false;
+        }
+    }
+
+    // ========== Voice Bars Animation ==========
 
     let barInterval = null;
     function animateVoiceBars(active) {
@@ -234,10 +267,11 @@
         }
     }
 
+    // ========== Text-to-Speech ==========
+
     function speak(text) {
         if (!synth || !voiceMode) return;
         synth.cancel();
-        // Clean markdown for speech
         const clean = text
             .replace(/\*\*(.*?)\*\*/g, "$1")
             .replace(/\n- /g, ". ")
@@ -247,9 +281,13 @@
         const utt = new SpeechSynthesisUtterance(clean);
         utt.rate = 1.05;
         utt.pitch = 0.95;
-        // Try to pick a good voice
         const voices = synth.getVoices();
-        const preferred = voices.find(v => v.name.includes("Daniel") || v.name.includes("Google UK English Male") || v.name.includes("Alex"));
+        const preferred = voices.find(v =>
+            v.name.includes("Daniel") ||
+            v.name.includes("Google UK English Male") ||
+            v.name.includes("Alex") ||
+            v.name.includes("Samantha")
+        );
         if (preferred) utt.voice = preferred;
 
         utt.onstart = () => {
@@ -257,11 +295,13 @@
             animateVoiceBars(true);
         };
         utt.onend = () => {
-            document.getElementById("voice-status").textContent = "Click the mic to talk";
+            document.getElementById("voice-status").textContent = "Tap mic to talk";
             animateVoiceBars(false);
         };
         synth.speak(utt);
     }
+
+    // ========== Chat Core ==========
 
     function toggleChat() {
         isOpen = !isOpen;
@@ -271,16 +311,14 @@
             panel.classList.remove("hidden");
             panel.classList.add("visible");
             btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
-            if (messages.length === 0) {
-                addMessage("assistant", WELCOME);
-            }
+            if (messages.length === 0) addMessage("assistant", WELCOME);
             if (!voiceMode) document.getElementById("chat-input").focus();
         } else {
             panel.classList.remove("visible");
             panel.classList.add("hidden");
             btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`;
             if (synth) synth.cancel();
-            if (isListening) stopListening();
+            if (isRecording) stopRecording(true);
         }
     }
 
@@ -288,12 +326,10 @@
         const container = document.getElementById("chat-messages");
         const wrapper = document.createElement("div");
         wrapper.className = role === "user" ? "flex justify-end" : "flex justify-start";
-
         const bubble = document.createElement("div");
         bubble.className = role === "user"
             ? "bg-amber-500 text-black rounded-2xl rounded-br-md px-4 py-2 max-w-[80%] text-sm"
             : "bg-gray-800 text-gray-100 rounded-2xl rounded-bl-md px-4 py-2 max-w-[80%] text-sm chat-msg";
-
         bubble.innerHTML = formatMarkdown(text);
         wrapper.appendChild(bubble);
         container.appendChild(wrapper);
@@ -336,17 +372,13 @@
         input.value = "";
         addMessage("user", text);
         messages.push({ role: "user", content: text });
-        await streamResponse(false);
+        await streamResponse();
     }
 
-    async function streamResponse(shouldSpeak) {
+    async function streamResponse() {
         isStreaming = true;
         const sendBtn = document.getElementById("chat-send");
         if (sendBtn) sendBtn.disabled = true;
-        if (voiceMode) {
-            document.getElementById("voice-status").textContent = "Thinking...";
-            animateVoiceBars(true);
-        }
         showTyping();
 
         try {
@@ -371,10 +403,8 @@
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
                 const chunk = decoder.decode(value, { stream: true });
                 const lines = chunk.split("\n");
-
                 for (const line of lines) {
                     if (line.startsWith("data: ")) {
                         const data = line.slice(6);
@@ -389,32 +419,21 @@
                                     document.getElementById("chat-messages").scrollHeight;
                             }
                         } catch (e) {
-                            if (e.message !== "Unexpected end of JSON input") {
-                                console.error("Parse error:", e);
-                            }
+                            if (e.message !== "Unexpected end of JSON input") console.error("Parse error:", e);
                         }
                     }
                 }
             }
 
             messages.push({ role: "assistant", content: fullText });
+            if (messages.length > 20) messages = messages.slice(-20);
 
-            if (messages.length > 20) {
-                messages = messages.slice(-20);
-            }
+            // If voice mode is on, speak the text response too
+            if (voiceMode) speak(fullText);
 
-            // Speak the response in voice mode
-            if (shouldSpeak || voiceMode) {
-                speak(fullText);
-            }
         } catch (err) {
             removeTyping();
-            const errMsg = "Oops! Something went wrong on my end. Try again in a sec. If the chat isn't working, it might mean the AI service is being set up. Check back soon!";
-            addMessage("assistant", errMsg);
-            if (voiceMode) {
-                document.getElementById("voice-status").textContent = "Error — try again";
-                animateVoiceBars(false);
-            }
+            addMessage("assistant", "Oops! Something went wrong. Try again in a sec.");
             console.error("Chat error:", err);
         } finally {
             isStreaming = false;
