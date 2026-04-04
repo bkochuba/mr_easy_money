@@ -122,280 +122,385 @@ def get_zodiac(month, day):
 
 
 # ============ PDF generation ============
+def draw_star(c, cx, cy, r, color):
+    """Draw a 5-pointed star at (cx, cy) with radius r."""
+    c.setFillColor(color)
+    p = c.beginPath()
+    for i in range(5):
+        angle = math.radians(90 + i * 144)
+        x = cx + r * math.cos(angle)
+        y = cy + r * math.sin(angle)
+        if i == 0:
+            p.moveTo(x, y)
+        else:
+            p.lineTo(x, y)
+    p.close()
+    c.drawPath(p, fill=1, stroke=0)
+
+
+def draw_decorative_ring(c, cx, cy, radius, segments, color, line_width=1):
+    """Draw a dashed decorative ring."""
+    c.setStrokeColor(color)
+    c.setLineWidth(line_width)
+    for i in range(segments):
+        a1 = math.radians(i * (360 / segments))
+        a2 = math.radians(i * (360 / segments) + (360 / segments) * 0.6)
+        c.arc(cx - radius, cy - radius, cx + radius, cy + radius,
+              math.degrees(a1), math.degrees(a2 - a1))
+
+
+def wrap_text(c, text, font, size, max_width):
+    """Word-wrap text and return list of lines."""
+    c.setFont(font, size)
+    words = text.split()
+    lines = []
+    line = ""
+    for word in words:
+        test = line + " " + word if line else word
+        if c.stringWidth(test, font, size) < max_width:
+            line = test
+        else:
+            if line:
+                lines.append(line)
+            line = word
+    if line:
+        lines.append(line)
+    return lines
+
+
 def generate_starmap_pdf(data, name, birth_date, birth_place):
     from reportlab.lib.pagesizes import letter
-    from reportlab.lib.colors import HexColor, white, black
-    from reportlab.lib.units import inch
+    from reportlab.lib.colors import HexColor, white, Color
     from reportlab.pdfgen import canvas
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.platypus import Paragraph
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=letter)
     w, h = letter
+    mx = 50  # margin x
 
     # Colors
-    dark_bg = HexColor("#0f0f23")
+    bg = HexColor("#0f0f23")
+    bg2 = HexColor("#141432")
     gold = HexColor("#f59e0b")
-    gold_dark = HexColor("#d97706")
+    gold_d = HexColor("#d97706")
+    gold_dim = HexColor("#92630a")
     mint = HexColor("#10b981")
-    dark_card = HexColor("#1a1a2e")
-    gray_text = HexColor("#9ca3af")
-    light_text = HexColor("#e5e7eb")
+    orange = HexColor("#f97316")
+    violet = HexColor("#8b5cf6")
+    card = HexColor("#1a1a2e")
+    card_b = HexColor("#252545")
+    gray = HexColor("#9ca3af")
+    light = HexColor("#e5e7eb")
 
     sign = data.get("sun_sign", "Aries")
-    symbol = ZODIAC_SYMBOLS.get(sign, "\u2605")
+    archetype = data.get("money_archetype", "The Cosmic Investor")
+
+    # Try to embed the hero image
+    hero_path = os.path.join(os.path.dirname(__file__), "static", "images", "hero.png")
+    has_hero = os.path.exists(hero_path)
 
     # ====== PAGE 1: Cover ======
-    c.setFillColor(dark_bg)
+    c.setFillColor(bg)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    # Decorative circles
-    c.setFillColor(HexColor("#f59e0b10"))
-    c.setStrokeColor(HexColor("#f59e0b30"))
+    # Background image with overlay
+    if has_hero:
+        c.saveState()
+        c.setFillColor(Color(0, 0, 0, alpha=0.5))
+        c.drawImage(hero_path, 0, h / 2 - 100, w, h / 2 + 100, preserveAspectRatio=True, anchor="c", mask="auto")
+        c.rect(0, 0, w, h, fill=1, stroke=0)  # dark overlay
+        c.restoreState()
+
+    # Decorative rings
+    center_y = h / 2 + 20
+    for r, alpha in [(180, 0.15), (140, 0.2), (100, 0.25), (60, 0.1)]:
+        draw_decorative_ring(c, w / 2, center_y, r, 12, Color(0.96, 0.62, 0.04, alpha=alpha), 1.5)
+
+    # Stars scattered around
+    import random
+    random.seed(hash(name))  # consistent per person
+    for _ in range(30):
+        sx = random.randint(30, int(w) - 30)
+        sy = random.randint(30, int(h) - 30)
+        sr = random.uniform(1.5, 3.5)
+        draw_star(c, sx, sy, sr, Color(1, 1, 1, alpha=random.uniform(0.1, 0.4)))
+
+    # Central zodiac sign text (large)
+    c.setFillColor(gold)
+    c.setFont("Helvetica-Bold", 60)
+    c.drawCentredString(w / 2, center_y - 15, sign.upper())
+    c.setFont("Helvetica", 16)
+    c.setFillColor(gold_d)
+    c.drawCentredString(w / 2, center_y - 40, archetype)
+
+    # Divider stars
+    for i in range(5):
+        draw_star(c, w / 2 - 40 + i * 20, center_y + 40, 4, gold)
+
+    # Title block at top
+    c.setFillColor(card)
+    c.setStrokeColor(gold_dim)
     c.setLineWidth(1)
-    c.circle(w / 2, h / 2 + 50, 200, fill=0, stroke=1)
-    c.circle(w / 2, h / 2 + 50, 160, fill=0, stroke=1)
-    c.circle(w / 2, h / 2 + 50, 120, fill=0, stroke=1)
+    c.roundRect(mx, h - 160, w - mx * 2, 110, 12, fill=1, stroke=1)
 
-    # Zodiac symbol big
-    c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 80)
-    c.drawCentredString(w / 2, h / 2 + 30, symbol)
-
-    # Title
-    c.setFont("Helvetica-Bold", 36)
     c.setFillColor(white)
-    c.drawCentredString(w / 2, h - 120, "YOUR MONEY STAR MAP")
+    c.setFont("Helvetica-Bold", 32)
+    c.drawCentredString(w / 2, h - 95, "YOUR MONEY STAR MAP")
 
-    c.setFont("Helvetica", 14)
     c.setFillColor(gold)
-    c.drawCentredString(w / 2, h - 145, "by Mr. Easy Money \u2022 The Oracle of Capital Flows")
-
-    # Name & details
-    c.setFont("Helvetica-Bold", 24)
-    c.setFillColor(white)
-    c.drawCentredString(w / 2, 220, name.upper())
-
     c.setFont("Helvetica", 13)
-    c.setFillColor(gray_text)
-    c.drawCentredString(w / 2, 195, f"Born {birth_date} \u2022 {birth_place}")
+    c.drawCentredString(w / 2, h - 120, "by Mr. Easy Money  |  The Oracle of Capital Flows")
 
-    c.setFont("Helvetica-Bold", 18)
+    # Gold accent bar
     c.setFillColor(gold)
-    c.drawCentredString(w / 2, 165, f"{symbol} {sign} \u2022 {data.get('money_archetype', '')}")
+    c.rect(w / 2 - 60, h - 135, 120, 2, fill=1, stroke=0)
 
-    c.setFont("Helvetica", 10)
-    c.setFillColor(gray_text)
-    c.drawCentredString(w / 2, 60, f"Generated {datetime.now().strftime('%B %d, %Y')} \u2022 mreaymoney.com")
-    c.drawCentredString(w / 2, 45, "For entertainment & educational purposes. Not financial advice.")
+    # Name block at bottom
+    c.setFillColor(card)
+    c.setStrokeColor(gold_dim)
+    c.roundRect(mx, 80, w - mx * 2, 120, 12, fill=1, stroke=1)
+
+    c.setFillColor(white)
+    c.setFont("Helvetica-Bold", 28)
+    c.drawCentredString(w / 2, 160, name.upper())
+
+    c.setFillColor(gray)
+    c.setFont("Helvetica", 12)
+    c.drawCentredString(w / 2, 138, f"Born {birth_date}  |  {birth_place}")
+
+    c.setFillColor(gold)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawCentredString(w / 2, 112, f"{sign}  |  {archetype}")
+
+    # Bottom disclaimer
+    c.setFillColor(Color(0.4, 0.4, 0.5, alpha=0.7))
+    c.setFont("Helvetica", 8)
+    c.drawCentredString(w / 2, 40, f"Generated {datetime.now().strftime('%B %d, %Y')}  |  mreaymoney.com  |  For entertainment & educational purposes only")
 
     c.showPage()
 
     # ====== PAGE 2: The Reading ======
-    c.setFillColor(dark_bg)
+    c.setFillColor(bg)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    y = h - 60
+    y = h - 50
 
-    # Header
+    # Page header
     c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 22)
-    c.drawCentredString(w / 2, y, f"{symbol} YOUR FINANCIAL COSMOS {symbol}")
-    y -= 40
-
-    # Money Element
-    c.setFillColor(white)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y, "RULING PLANET")
-    c.setFillColor(light_text)
-    c.setFont("Helvetica", 12)
-    c.drawString(200, y, data.get("ruling_planet", ""))
-    y -= 25
-
-    c.setFillColor(white)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y, "MONEY ELEMENT")
-    c.setFillColor(light_text)
-    c.setFont("Helvetica", 12)
-    element_text = data.get("money_element", "")
-    if len(element_text) > 60:
-        c.drawString(200, y, element_text[:60])
-        y -= 18
-        c.drawString(200, y, element_text[60:120])
-    else:
-        c.drawString(200, y, element_text)
-    y -= 35
-
-    # Wealth Prediction
-    c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(60, y, "\u2728 WEALTH PREDICTION")
-    y -= 5
-
-    c.setFillColor(gold_dark)
-    c.setLineWidth(0.5)
-    c.line(60, y, w - 60, y)
-    y -= 20
-
-    prediction = data.get("wealth_prediction", "")
-    c.setFillColor(light_text)
-    c.setFont("Helvetica", 11)
-    words = prediction.split()
-    line = ""
-    for word in words:
-        test = line + " " + word if line else word
-        if c.stringWidth(test, "Helvetica", 11) < w - 130:
-            line = test
-        else:
-            c.drawString(65, y, line)
-            y -= 16
-            line = word
-    if line:
-        c.drawString(65, y, line)
+    c.setFont("Helvetica-Bold", 20)
+    c.drawCentredString(w / 2, y, "YOUR FINANCIAL COSMOS")
+    y -= 8
+    c.setFillColor(gold_d)
+    c.rect(w / 2 - 80, y, 160, 1.5, fill=1, stroke=0)
     y -= 30
 
-    # Strengths
-    c.setFillColor(mint)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y, "\u2705 FINANCIAL STRENGTHS")
-    y -= 20
+    # --- Ruling Planet & Element row ---
+    col_w = (w - mx * 2 - 15) / 2
+    for i, (label, val) in enumerate([
+        ("RULING PLANET", data.get("ruling_planet", "")),
+        ("MONEY ELEMENT", data.get("money_element", "")),
+    ]):
+        bx = mx + i * (col_w + 15)
+        c.setFillColor(card)
+        c.setStrokeColor(card_b)
+        c.roundRect(bx, y - 55, col_w, 55, 8, fill=1, stroke=1)
+        c.setFillColor(gold)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(bx + 12, y - 16, label)
+        c.setFillColor(light)
+        c.setFont("Helvetica", 10)
+        # Truncate if too long
+        display_val = val[:35] + "..." if len(val) > 35 else val
+        c.drawString(bx + 12, y - 34, display_val)
+    y -= 72
 
-    for s in data.get("strengths", []):
-        c.setFillColor(light_text)
-        c.setFont("Helvetica", 11)
-        c.drawString(75, y, f"\u2022 {s}")
-        y -= 18
-    y -= 15
+    # --- Wealth Prediction ---
+    c.setFillColor(card)
+    c.setStrokeColor(gold_dim)
+    pred_lines = wrap_text(c, data.get("wealth_prediction", ""), "Helvetica", 10, w - mx * 2 - 30)
+    pred_h = max(70, len(pred_lines) * 15 + 40)
+    c.roundRect(mx, y - pred_h, w - mx * 2, pred_h, 8, fill=1, stroke=1)
 
-    # Challenges
-    c.setFillColor(HexColor("#f97316"))
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y, "\u26A0 WATCH OUT FOR")
-    y -= 20
-
-    for ch in data.get("challenges", []):
-        c.setFillColor(light_text)
-        c.setFont("Helvetica", 11)
-        c.drawString(75, y, f"\u2022 {ch}")
-        y -= 18
-    y -= 15
-
-    # Ideal Investments
     c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y, "\U0001F4B0 IDEAL INVESTMENTS FOR YOUR SIGN")
-    y -= 20
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(mx + 15, y - 20, "WEALTH PREDICTION")
+    draw_star(c, mx + 145, y - 15, 5, gold)
 
-    for inv in data.get("ideal_investments", []):
-        c.setFillColor(light_text)
-        c.setFont("Helvetica", 11)
-        c.drawString(75, y, f"\u2022 {inv}")
-        y -= 18
-    y -= 15
+    c.setFillColor(light)
+    c.setFont("Helvetica", 10)
+    ty = y - 40
+    for line in pred_lines:
+        c.drawString(mx + 15, ty, line)
+        ty -= 15
+    y -= pred_h + 15
 
-    # Lucky Numbers & Peak Years
-    c.setFillColor(white)
-    c.setFont("Helvetica-Bold", 14)
+    # --- Strengths & Challenges side by side ---
+    col_w = (w - mx * 2 - 15) / 2
+    strengths = data.get("strengths", [])
+    challenges = data.get("challenges", [])
+    box_h = max(len(strengths), len(challenges)) * 18 + 35
+
+    for i, (label, items, color) in enumerate([
+        ("FINANCIAL STRENGTHS", strengths, mint),
+        ("WATCH OUT FOR", challenges, orange),
+    ]):
+        bx = mx + i * (col_w + 15)
+        c.setFillColor(card)
+        c.setStrokeColor(card_b)
+        c.roundRect(bx, y - box_h, col_w, box_h, 8, fill=1, stroke=1)
+        # Colored accent bar at top
+        c.setFillColor(color)
+        c.roundRect(bx, y - 3, col_w, 3, 1, fill=1, stroke=0)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawString(bx + 12, y - 22, label)
+        c.setFillColor(light)
+        c.setFont("Helvetica", 10)
+        iy = y - 40
+        for item in items:
+            item_display = item[:40] + "..." if len(item) > 40 else item
+            c.setFillColor(color)
+            c.circle(bx + 16, iy + 3, 2.5, fill=1, stroke=0)
+            c.setFillColor(light)
+            c.drawString(bx + 25, iy, item_display)
+            iy -= 18
+    y -= box_h + 15
+
+    # --- Ideal Investments ---
+    investments = data.get("ideal_investments", [])
+    inv_h = len(investments) * 18 + 35
+    c.setFillColor(card)
+    c.setStrokeColor(card_b)
+    c.roundRect(mx, y - inv_h, w - mx * 2, inv_h, 8, fill=1, stroke=1)
+    c.setFillColor(violet)
+    c.roundRect(mx, y - 3, w - mx * 2, 3, 1, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(mx + 15, y - 22, "IDEAL INVESTMENTS FOR YOUR SIGN")
+    c.setFillColor(light)
+    c.setFont("Helvetica", 10)
+    iy = y - 40
+    for inv in investments:
+        c.setFillColor(violet)
+        c.circle(mx + 19, iy + 3, 2.5, fill=1, stroke=0)
+        c.setFillColor(light)
+        c.drawString(mx + 28, iy, inv)
+        iy -= 18
+    y -= inv_h + 15
+
+    # --- Lucky Numbers & Peak Years row ---
+    col_w = (w - mx * 2 - 15) / 2
     lucky = ", ".join(str(n) for n in data.get("lucky_numbers", []))
-    c.drawString(60, y, f"\U0001F3B0 LUCKY NUMBERS: ")
-    c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(220, y, lucky)
-    y -= 25
-
-    c.setFillColor(white)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y, f"\U0001F4C8 PEAK EARNING YEARS: ")
-    c.setFillColor(gold)
-    c.drawString(250, y, data.get("peak_earning_years", ""))
+    peak = data.get("peak_earning_years", "")
+    for i, (label, val) in enumerate([
+        ("LUCKY NUMBERS", lucky),
+        ("PEAK EARNING YEARS", peak),
+    ]):
+        bx = mx + i * (col_w + 15)
+        c.setFillColor(card)
+        c.setStrokeColor(card_b)
+        c.roundRect(bx, y - 50, col_w, 50, 8, fill=1, stroke=1)
+        c.setFillColor(gray)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawString(bx + 12, y - 18, label)
+        c.setFillColor(gold)
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(bx + 12, y - 38, val)
 
     c.showPage()
 
     # ====== PAGE 3: Monthly Forecast + Mantra ======
-    c.setFillColor(dark_bg)
+    c.setFillColor(bg)
     c.rect(0, 0, w, h, fill=1, stroke=0)
 
-    y = h - 60
+    y = h - 50
 
+    # Header
     c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 22)
-    c.drawCentredString(w / 2, y, "\u2B50 6-MONTH MONEY FORECAST \u2B50")
-    y -= 40
+    c.setFont("Helvetica-Bold", 20)
+    c.drawCentredString(w / 2, y, "6-MONTH MONEY FORECAST")
+    # Stars flanking title
+    for i in range(3):
+        draw_star(c, w / 2 - 140 + i * 12, y + 5, 4, gold_d)
+        draw_star(c, w / 2 + 120 + i * 12, y + 5, 4, gold_d)
+    y -= 8
+    c.setFillColor(gold_d)
+    c.rect(w / 2 - 80, y, 160, 1.5, fill=1, stroke=0)
+    y -= 30
 
     for mf in data.get("monthly_forecast", []):
-        # Month box
-        c.setFillColor(dark_card)
-        c.roundRect(60, y - 40, w - 120, 50, 8, fill=1, stroke=0)
+        c.setFillColor(card)
+        c.setStrokeColor(card_b)
+        c.roundRect(mx, y - 55, w - mx * 2, 55, 8, fill=1, stroke=1)
 
+        # Month name
         c.setFillColor(white)
         c.setFont("Helvetica-Bold", 13)
-        c.drawString(75, y - 15, mf.get("month", ""))
+        c.drawString(mx + 15, y - 20, mf.get("month", ""))
 
-        # Stars
+        # Star rating (drawn stars, not Unicode)
         stars = mf.get("stars", 3)
-        star_str = "\u2605" * stars + "\u2606" * (5 - stars)
-        c.setFillColor(gold)
-        c.setFont("Helvetica", 14)
-        c.drawString(200, y - 15, star_str)
+        for i in range(5):
+            sx = mx + 180 + i * 18
+            if i < stars:
+                draw_star(c, sx, y - 16, 6, gold)
+            else:
+                draw_star(c, sx, y - 16, 6, Color(0.3, 0.3, 0.4))
 
         # Insight
-        c.setFillColor(gray_text)
-        c.setFont("Helvetica", 10)
-        insight = mf.get("insight", "")[:80]
-        c.drawString(75, y - 32, insight)
+        c.setFillColor(gray)
+        c.setFont("Helvetica", 9)
+        insight = mf.get("insight", "")[:90]
+        c.drawString(mx + 15, y - 42, insight)
 
-        y -= 60
+        y -= 65
 
-    y -= 10
+    y -= 5
 
-    # Power Mantra
-    c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 16)
-    c.drawCentredString(w / 2, y, "\U0001F52E YOUR POWER MANTRA")
-    y -= 30
-
-    c.setFillColor(white)
-    c.setFont("Helvetica-Bold", 14)
+    # --- Power Mantra box ---
     mantra = data.get("power_mantra", "")
-    c.drawCentredString(w / 2, y, f'"{mantra}"')
-    y -= 40
-
-    # Cosmic Advice
-    c.setFillColor(gold_dark)
-    c.line(100, y + 10, w - 100, y + 10)
-    y -= 10
-
-    c.setFillColor(light_text)
-    c.setFont("Helvetica", 11)
-    advice = data.get("cosmic_advice", "")
-    words = advice.split()
-    line = ""
-    for word in words:
-        test = line + " " + word if line else word
-        if c.stringWidth(test, "Helvetica", 11) < w - 160:
-            line = test
-        else:
-            c.drawCentredString(w / 2, y, line)
-            y -= 16
-            line = word
-    if line:
-        c.drawCentredString(w / 2, y, line)
-    y -= 30
-
-    # Footer CTA
+    c.setFillColor(card)
+    c.setStrokeColor(gold_dim)
+    c.roundRect(mx, y - 70, w - mx * 2, 70, 10, fill=1, stroke=1)
+    # Gold accent
     c.setFillColor(gold)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawCentredString(w / 2, y, "Ready to activate your Money Star Map?")
-    y -= 20
+    c.roundRect(mx, y - 3, w - mx * 2, 3, 1, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 11)
+    c.drawCentredString(w / 2, y - 22, "YOUR POWER MANTRA")
     c.setFillColor(white)
-    c.setFont("Helvetica", 12)
-    c.drawCentredString(w / 2, y, "Join The Money Glow-Up \u2022 Oct 17-19, 2026 \u2022 Miami Beach")
+    c.setFont("Helvetica-Bold", 13)
+    mantra_display = mantra if len(mantra) < 70 else mantra[:67] + "..."
+    c.drawCentredString(w / 2, y - 48, f'"{mantra_display}"')
+    y -= 85
+
+    # --- Cosmic Advice box ---
+    advice = data.get("cosmic_advice", "")
+    advice_lines = wrap_text(c, advice, "Helvetica", 10, w - mx * 2 - 30)
+    adv_h = len(advice_lines) * 15 + 35
+    c.setFillColor(card)
+    c.setStrokeColor(card_b)
+    c.roundRect(mx, y - adv_h, w - mx * 2, adv_h, 8, fill=1, stroke=1)
+    c.setFillColor(gold)
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(mx + 15, y - 20, "COSMIC ADVICE")
+    c.setFillColor(light)
+    c.setFont("Helvetica", 10)
+    ay = y - 38
+    for line in advice_lines:
+        c.drawString(mx + 15, ay, line)
+        ay -= 15
+    y -= adv_h + 20
+
+    # --- CTA Footer ---
+    c.setFillColor(gold)
+    c.setFont("Helvetica-Bold", 13)
+    c.drawCentredString(w / 2, y, "Ready to activate your Money Star Map?")
     y -= 18
-    c.setFillColor(gray_text)
-    c.setFont("Helvetica", 9)
-    c.drawCentredString(w / 2, y, "mreaymoney.com \u2022 For entertainment & educational purposes only")
+    c.setFillColor(white)
+    c.setFont("Helvetica", 11)
+    c.drawCentredString(w / 2, y, "Join The Money Glow-Up  |  Oct 17-19, 2026  |  Miami Beach")
+    y -= 16
+    c.setFillColor(gray)
+    c.setFont("Helvetica", 8)
+    c.drawCentredString(w / 2, y, "mreaymoney.com  |  For entertainment & educational purposes only")
 
     c.save()
     buf.seek(0)
