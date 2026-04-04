@@ -257,25 +257,33 @@
     }
 
     async function fetchAndPlayTTS(text) {
+        document.getElementById("voice-status").textContent = "Generating voice...";
+        animateVoiceBars(true);
         try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 120000); // 2 min timeout
+
             const res = await fetch("/api/tts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text }),
+                signal: controller.signal,
             });
+            clearTimeout(timeout);
 
             if (!res.ok) {
-                console.log("[Voice] TTS fetch failed, using browser fallback");
-                speak(text);
+                console.log("[Voice] TTS failed:", res.status);
+                document.getElementById("voice-status").textContent = "Voice unavailable. Tap mic to talk.";
+                animateVoiceBars(false);
                 return;
             }
 
             const blob = await res.blob();
+            console.log("[Voice] Got TTS audio:", blob.size, "bytes");
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
 
             document.getElementById("voice-status").textContent = "Speaking...";
-            animateVoiceBars(true);
 
             audio.onended = function () {
                 URL.revokeObjectURL(url);
@@ -284,16 +292,16 @@
             };
             audio.onerror = function () {
                 URL.revokeObjectURL(url);
-                console.log("[Voice] Audio playback failed, using browser fallback");
-                speak(text);
+                document.getElementById("voice-status").textContent = "Audio error. Tap mic to talk.";
+                animateVoiceBars(false);
             };
-            audio.play().catch(function() {
-                // Autoplay blocked — fall back
-                speak(text);
-            });
+            await audio.play();
         } catch (err) {
             console.log("[Voice] TTS error:", err);
-            speak(text);
+            document.getElementById("voice-status").textContent = err.name === "AbortError"
+                ? "Voice timed out. Tap mic to talk."
+                : "Voice error. Tap mic to talk.";
+            animateVoiceBars(false);
         }
     }
 

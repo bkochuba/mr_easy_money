@@ -572,9 +572,16 @@ def tts():
     if not text:
         return jsonify({"error": "No text provided."}), 400
 
-    # Truncate to keep TTS fast (under ~150 chars = ~5s generation)
-    if len(text) > 300:
-        text = text[:297] + "..."
+    # Keep TTS text to complete sentences (avoids mid-sentence cutoff)
+    # Split on sentence boundaries and take enough to stay under ~400 chars
+    import re
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    tts_text = ""
+    for s in sentences:
+        if len(tts_text) + len(s) > 400:
+            break
+        tts_text += s + " "
+    text = tts_text.strip() or text[:400]
 
     print(f"[TTS] Generating for {len(text)} chars...")
     client = genai.Client(api_key=GEMINI_API_KEY)
