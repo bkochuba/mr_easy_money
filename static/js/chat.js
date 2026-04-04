@@ -139,10 +139,14 @@
                     // Will auto-restart via onend handler
                     return;
                 }
-                // For real errors (not-allowed, network), stop
+                // For real errors, stop and show helpful message
                 stopListening();
                 if (e.error === "not-allowed") {
                     document.getElementById("voice-status").textContent = "Mic access denied. Check browser permissions.";
+                } else if (e.error === "network") {
+                    document.getElementById("voice-status").textContent = "Voice requires Chrome/Edge + internet. Try typing instead.";
+                    // Auto-switch to text mode after network error
+                    setTimeout(function() { if (voiceMode) window.__mrem_toggleVoice(); }, 3000);
                 } else {
                     document.getElementById("voice-status").textContent = "Mic error: " + e.error + ". Try again.";
                 }

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VIP Experience | The Money Glow-Up | Mr. Easy Money</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Inter', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+            --color-gold: #f59e0b;
+            --color-gold-dark: #d97706;
+            --color-mint: #10b981;
+            --color-dark: #0f0f23;
+            --color-dark-card: #1a1a2e;
+            --color-dark-border: #2a2a4a;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white font-sans antialiased">
+
+<!-- Minimal Nav -->
+<nav class="bg-dark/80 backdrop-blur-xl border-b border-white/5 py-4">
+    <div class="max-w-5xl mx-auto px-4 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2">
+            <span class="text-2xl">&#128176;</span>
+            <span class="font-serif font-bold text-xl text-gold">Mr. Easy Money</span>
+        </a>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+            <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+            Secure Checkout
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Banner -->
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0">
+        <img src="{{ url_for('static', filename='images/hero.png') }}" alt="" class="w-full h-full object-cover opacity-30" />
+        <div class="absolute inset-0 bg-gradient-to-b from-dark/80 via-dark/90 to-dark"></div>
+    </div>
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-16 text-center">
+        <div class="inline-block bg-amber-500/10 border border-amber-500/30 rounded-full px-5 py-1.5 mb-6">
+            <span class="text-amber-400 text-sm font-semibold">VIP EXPERIENCE &bull; MOST POPULAR</span>
+        </div>
+        <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-black mb-4">
+            The Money <span class="gradient-text">Glow-Up</span> VIP
+        </h1>
+        <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+            3 days. Fontainebleau Miami Beach. Oct 17&ndash;19, 2026.
+            <br/>The premium experience &mdash; bring your partner free.
+        </p>
+    </div>
+</section>
+
+<!-- Main Content: 2-column layout -->
+<section class="max-w-5xl mx-auto px-4 py-12">
+    <div class="grid lg:grid-cols-5 gap-10">
+
+        <!-- Left Column: What's Included (3 cols) -->
+        <div class="lg:col-span-3 space-y-8">
+
+            <!-- Urgency Bar -->
+            <div class="bg-red-500/10 border border-red-500/30 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span class="text-red-400 text-lg">&#128293;</span>
+                <div>
+                    <div class="text-red-400 font-bold text-sm">Only 47 VIP seats remaining</div>
+                    <div class="text-gray-400 text-xs">150 total seats &bull; 103 already reserved</div>
+                </div>
+            </div>
+
+            <!-- Video / Image Section -->
+            <div class="rounded-2xl overflow-hidden border border-dark-border">
+                <img src="{{ url_for('static', filename='images/venue.png') }}" alt="Mr. Easy Money at Fontainebleau" class="w-full h-auto" />
+            </div>
+
+            <!-- What's Included -->
+            <div>
+                <h2 class="font-serif text-2xl font-bold mb-6">Everything in Your VIP Experience</h2>
+
+                <div class="space-y-4">
+                    <!-- The Event -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#127962;</div>
+                            <div>
+                                <h3 class="font-bold text-white">3-Day Live Event at the Fontainebleau</h3>
+                                <p class="text-gray-400 text-sm mt-1">15+ sessions across 3 transformational days. Hands-on workshops, live investing demos, negotiation role-plays, and expert panels. Not a lecture &mdash; an experience.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Partner Free -->
+                    <div class="bg-dark-card border border-amber-500/30 rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#128149;</div>
+                            <div>
+                                <h3 class="font-bold text-amber-400">Your Partner Attends FREE</h3>
+                                <p class="text-gray-400 text-sm mt-1">Money is the #1 thing couples fight about. Get on the same page together. Your partner gets full access to all sessions, meals, and the Couples & Money Workshop.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gala Dinner -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#127860;</div>
+                            <div>
+                                <h3 class="font-bold text-white">Gala Dinner at Stripsteak by Michael Mina</h3>
+                                <p class="text-gray-400 text-sm mt-1">Saturday evening private dinner with all VIP attendees. Networking, celebration, and a surprise keynote from a self-made millionaire.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Priority Seating -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#127942;</div>
+                            <div>
+                                <h3 class="font-bold text-white">Priority Seating &bull; First 3 Rows</h3>
+                                <p class="text-gray-400 text-sm mt-1">Front-row access to every session. No craning your neck from the back of the ballroom.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 90-Day Coaching -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#128640;</div>
+                            <div>
+                                <h3 class="font-bold text-white">90-Day Group Coaching (3 Calls)</h3>
+                                <p class="text-gray-400 text-sm mt-1">Monthly coaching calls after the event to keep you on track. We don't just inspire and disappear.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Telegram Group -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#128172;</div>
+                            <div>
+                                <h3 class="font-bold text-white">Private Telegram Group</h3>
+                                <p class="text-gray-400 text-sm mt-1">Direct access to Mr. Easy Money and the VIP community. Ask questions, share wins, get real-time support.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifetime Access -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#9854;</div>
+                            <div>
+                                <h3 class="font-bold text-white">Lifetime Access to Everything</h3>
+                                <p class="text-gray-400 text-sm mt-1">All session recordings, worksheets, templates, Script Library, AI Coach, and community. Yours forever &mdash; for real.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meals -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl flex-shrink-0">&#127828;</div>
+                            <div>
+                                <h3 class="font-bold text-white">All Meals Included</h3>
+                                <p class="text-gray-400 text-sm mt-1">Breakfast and lunch all 3 days, poolside happy hour (Day 1), and the Gala Dinner (Day 2).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial -->
+            <div class="bg-gradient-to-br from-amber-500/5 to-emerald-500/5 border border-amber-500/20 rounded-2xl p-6">
+                <div class="flex items-center gap-1 text-amber-400 mb-3">
+                    <span>&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                </div>
+                <p class="text-gray-300 italic">"My wife and I were fighting about money every week. Went to the VIP together. The Couples & Money Workshop gave us a shared language. We do our weekly Money Date now &mdash; it's actually fun? We saved $11K in 6 months for the first time ever."</p>
+                <div class="mt-4 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center font-bold text-black text-sm">D</div>
+                    <div class="text-sm"><strong>David & Maria K.</strong> <span class="text-gray-500">&bull; Freelancers, Chicago</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Checkout (2 cols) -->
+        <div class="lg:col-span-2">
+            <div class="sticky top-6">
+
+                <!-- Checkout Card -->
+                <div class="bg-dark-card border-2 border-amber-500 rounded-2xl overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 text-center">
+                        <div class="text-black font-bold text-sm uppercase tracking-wide">VIP Experience</div>
+                        <div class="text-black">
+                            <span class="text-4xl font-black">$997</span>
+                        </div>
+                        <div class="text-black/70 text-sm">or 3 payments of $349</div>
+                    </div>
+
+                    <!-- Form -->
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Full Name</label>
+                            <input type="text" placeholder="Brent Kochuba" class="w-full bg-dark border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Email</label>
+                            <input type="email" placeholder="brent@email.com" class="w-full bg-dark border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide">Partner's Name <span class="text-gray-600">(optional)</span></label>
+                            <input type="text" placeholder="Attending with your +1?" class="w-full bg-dark border border-dark-border rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" />
+                        </div>
+
+                        <!-- Payment Toggle -->
+                        <div class="flex bg-dark rounded-lg border border-dark-border overflow-hidden">
+                            <button onclick="this.classList.add('bg-amber-500','text-black');this.classList.remove('text-gray-400');this.nextElementSibling.classList.remove('bg-amber-500','text-black');this.nextElementSibling.classList.add('text-gray-400')" class="flex-1 py-2 text-sm font-bold bg-amber-500 text-black transition-colors">Pay in Full &mdash; $997</button>
+                            <button onclick="this.classList.add('bg-amber-500','text-black');this.classList.remove('text-gray-400');this.previousElementSibling.classList.remove('bg-amber-500','text-black');this.previousElementSibling.classList.add('text-gray-400')" class="flex-1 py-2 text-sm font-bold text-gray-400 transition-colors">3 Payments &mdash; $349</button>
+                        </div>
+
+                        <!-- CTA -->
+                        <button onclick="alert('This is a demo! In production, this would connect to Stripe for payment processing. Easy money, easy life! 💰')" class="w-full gold-gradient text-black font-black py-4 rounded-xl text-lg hover:opacity-90 transition-opacity pulse-gold">
+                            &#128274; Reserve My VIP Seat
+                        </button>
+
+                        <!-- Trust Signals -->
+                        <div class="space-y-2 pt-2">
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                30-day money-back guarantee, no questions asked
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                Your partner attends completely free
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                Lifetime access to all recordings &amp; materials
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                                <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                Secure SSL-encrypted payment
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison -->
+                <div class="mt-6 bg-dark-card border border-dark-border rounded-xl p-5">
+                    <h4 class="font-bold text-sm text-gray-300 mb-3 uppercase tracking-wide">How We Compare</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between text-gray-400">
+                            <span>Ramit Sethi courses</span>
+                            <span class="text-gray-500 line-through">$2,000&ndash;$6,000</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Kate Northrup Relaxed Money</span>
+                            <span class="text-gray-500 line-through">$3,000</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Sarah Jenks The Council</span>
+                            <span class="text-gray-500 line-through">$15,000</span>
+                        </div>
+                        <div class="border-t border-dark-border my-2"></div>
+                        <div class="flex justify-between font-bold">
+                            <span class="text-white">Money Glow-Up VIP</span>
+                            <span class="text-amber-400">$997</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Mini -->
+                <div class="mt-6 text-center">
+                    <p class="text-gray-500 text-xs">Questions? <a href="/#faq" class="text-amber-400 underline">See FAQ</a> or <button onclick="document.getElementById('chat-toggle').click()" class="text-amber-400 underline">chat with Mr. Easy Money</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Proof Strip -->
+<section class="border-t border-dark-border py-10 bg-dark-card">
+    <div class="max-w-5xl mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+                <div class="text-2xl font-black text-gold">10,000+</div>
+                <div class="text-gray-500 text-xs mt-1">Students Enrolled</div>
+            </div>
+            <div>
+                <div class="text-2xl font-black text-gold">$47M+</div>
+                <div class="text-gray-500 text-xs mt-1">Debt Eliminated</div>
+            </div>
+            <div>
+                <div class="text-2xl font-black text-gold">4.9/5</div>
+                <div class="text-gray-500 text-xs mt-1">Average Rating</div>
+            </div>
+            <div>
+                <div class="text-2xl font-black text-gold">34</div>
+                <div class="text-gray-500 text-xs mt-1">Countries</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-8 border-t border-dark-border">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+        <p class="text-gray-600 text-xs">
+            <strong>Disclaimer:</strong> Mr. Easy Money provides financial education, not personalized financial advice.
+            We are not licensed financial advisors. Content is for educational purposes only.
+            Always consult with a qualified financial professional before making investment decisions.
+        </p>
+        <p class="text-gray-700 text-xs mt-3">&copy; 2026 Mr. Easy Money. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- Chat Widget -->
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+
+</body>
+</html>

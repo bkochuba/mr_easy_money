@@ -410,6 +410,109 @@
     </div>
 </section>
 
+<!-- ==================== MONEY STAR MAP ==================== -->
+<section id="starmap" class="py-24 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-dark-card via-dark to-dark-card"></div>
+    <div class="absolute top-20 left-1/4 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-1/4 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-12">
+            <span class="text-violet-400 font-semibold text-sm tracking-widest uppercase">Free Tool</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">
+                Your <span class="gradient-text">Money Star Map</span>
+            </h2>
+            <p class="text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
+                Discover your cosmic financial blueprint. Enter your birth details and receive a
+                personalized Money Star Map PDF &mdash; complete with your money archetype,
+                6-month forecast, power mantra, and wealth prediction.
+            </p>
+        </div>
+
+        <div class="bg-dark-card border border-violet-500/30 rounded-3xl p-8 sm:p-10 max-w-xl mx-auto">
+            <div class="text-center mb-8">
+                <span class="text-5xl">&#128302;</span>
+                <h3 class="font-serif text-2xl font-bold mt-3">Get Your Free Reading</h3>
+                <p class="text-gray-400 text-sm mt-1">Powered by AI astrology &bull; Instant PDF download</p>
+            </div>
+
+            <form id="starmap-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Your Name</label>
+                    <input type="text" id="sm-name" required placeholder="e.g. Brent Kochuba"
+                        class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Birth Date</label>
+                    <input type="date" id="sm-date" required
+                        class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Birth Place</label>
+                    <input type="text" id="sm-place" required placeholder="e.g. Cleveland, Ohio"
+                        class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500" />
+                </div>
+                <button type="submit" id="sm-submit"
+                    class="w-full bg-gradient-to-r from-violet-600 to-amber-500 text-white font-bold py-4 rounded-xl text-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
+                    &#10024; Generate My Money Star Map
+                </button>
+                <p id="sm-status" class="text-center text-sm text-gray-400 hidden"></p>
+            </form>
+        </div>
+
+        <div class="text-center mt-8">
+            <p class="text-gray-500 text-xs">For entertainment &amp; educational purposes. Not financial advice. Your data is not stored.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById("starmap-form").onsubmit = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("sm-submit");
+    const status = document.getElementById("sm-status");
+    const name = document.getElementById("sm-name").value.trim();
+    const date = document.getElementById("sm-date").value;
+    const place = document.getElementById("sm-place").value.trim();
+
+    btn.disabled = true;
+    btn.textContent = "Consulting the stars...";
+    status.classList.remove("hidden");
+    status.textContent = "Generating your personalized Money Star Map PDF... This takes about 15 seconds.";
+    status.className = "text-center text-sm text-violet-400";
+
+    try {
+        const res = await fetch("/api/starmap", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name, birth_date: date, birth_place: place})
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || "Failed to generate");
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Money_Star_Map_" + name.replace(/ /g, "_") + ".pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        status.textContent = "Your Money Star Map has been downloaded!";
+        status.className = "text-center text-sm text-emerald-400";
+    } catch(err) {
+        status.textContent = "Error: " + err.message + ". Please try again.";
+        status.className = "text-center text-sm text-red-400";
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "&#10024; Generate My Money Star Map";
+    }
+};
+</script>
+
 <!-- ==================== FEATURES ==================== -->
 <section class="py-24 bg-dark-card">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -534,7 +637,7 @@
                     <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Private Telegram group with Mr. Easy Money</li>
                     <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Community + AI Coach (lifetime)</li>
                 </ul>
-                <a href="#" class="block text-center gold-gradient text-black font-bold py-3 rounded-full hover:opacity-90 transition-opacity">Get VIP Access</a>
+                <a href="/vip" class="block text-center gold-gradient text-black font-bold py-3 rounded-full hover:opacity-90 transition-opacity">Get VIP Access</a>
             </div>
 
             <!-- Inner Circle -->
