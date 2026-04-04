@@ -412,14 +412,13 @@ def vip():
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    if not ANTHROPIC_API_KEY:
+    if not GEMINI_API_KEY:
         return jsonify({"error": "Chat is currently unavailable. API key not configured."}), 503
 
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        from google import genai
     except ImportError:
-        return jsonify({"error": "Anthropic SDK not installed."}), 503
+        return jsonify({"error": "Google GenAI SDK not installed."}), 503
 
     data = request.json or {}
     messages = data.get("messages", [])
@@ -429,16 +428,26 @@ def chat():
 
     messages = messages[-20:]
 
+    # Convert messages to Gemini format
+    gemini_contents = []
+    for msg in messages:
+        role = "user" if msg["role"] == "user" else "model"
+        gemini_contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+
     def generate():
         try:
-            with client.messages.stream(
-                model=CHAT_MODEL,
-                max_tokens=1024,
-                system=SYSTEM_PROMPT,
-                messages=messages,
-            ) as stream:
-                for text in stream.text_stream:
-                    yield f"data: {json.dumps({'text': text})}\n\n"
+            client = genai.Client(api_key=GEMINI_API_KEY)
+            response = client.models.generate_content_stream(
+                model="gemini-2.5-flash",
+                contents=gemini_contents,
+                config={
+                    "system_instruction": SYSTEM_PROMPT,
+                    "max_output_tokens": 1024,
+                },
+            )
+            for chunk in response:
+                if chunk.text:
+                    yield f"data: {json.dumps({'text': chunk.text})}\n\n"
             yield "data: [DONE]\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
@@ -471,22 +480,21 @@ def starmap():
 
     sign = get_zodiac(bd.month, bd.day)
 
-    # Use Anthropic to generate the reading
+    # Use Gemini to generate the reading
     reading_data = None
-    if ANTHROPIC_API_KEY:
+    if GEMINI_API_KEY:
         try:
-            import anthropic
-            client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-            resp = client.messages.create(
-                model=CHAT_MODEL,
-                max_tokens=2048,
-                system=STARMAP_PROMPT,
-                messages=[{
-                    "role": "user",
-                    "content": f"Generate a Money Star Map for:\nName: {name}\nBirth Date: {birth_date} ({sign})\nBirth Place: {birth_place}\n\nCurrent date: {datetime.now().strftime('%B %Y')}"
-                }],
+            from google import genai
+            client = genai.Client(api_key=GEMINI_API_KEY)
+            resp = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=f"Generate a Money Star Map for:\nName: {name}\nBirth Date: {birth_date} ({sign})\nBirth Place: {birth_place}\n\nCurrent date: {datetime.now().strftime('%B %Y')}",
+                config={
+                    "system_instruction": STARMAP_PROMPT,
+                    "max_output_tokens": 2048,
+                },
             )
-            raw = resp.content[0].text.strip()
+            raw = resp.text.strip()
             if raw.startswith("```"):
                 raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
             reading_data = json.loads(raw)
