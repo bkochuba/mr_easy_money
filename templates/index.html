@@ -72,10 +72,13 @@
 </div>
 
 <!-- ==================== HERO ==================== -->
-<section class="hero-gradient min-h-screen flex items-center relative overflow-hidden pt-20">
-    <!-- Decorative elements -->
-    <div class="absolute top-20 left-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl float-animation"></div>
-    <div class="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl float-animation-delayed"></div>
+<section class="min-h-screen flex items-center relative overflow-hidden pt-20">
+    <!-- Hero background image -->
+    <div class="absolute inset-0">
+        <img src="{{ url_for('static', filename='images/hero.png') }}" alt="" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-b from-dark/70 via-dark/60 to-dark"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-dark/80 via-transparent to-dark/80"></div>
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div class="text-center max-w-4xl mx-auto">
@@ -184,6 +187,10 @@
                 </div>
             </div>
             <div class="relative">
+                <!-- About section image -->
+                <div class="mb-8 rounded-2xl overflow-hidden border border-amber-500/20 shadow-2xl">
+                    <img src="{{ url_for('static', filename='images/about.png') }}" alt="Mr. Easy Money - The Priestess of Capital Flows" class="w-full h-auto" />
+                </div>
                 <div class="bg-gradient-to-br from-amber-500/20 to-emerald-500/20 rounded-3xl p-8 border border-amber-500/20">
                     <h3 class="font-serif text-2xl font-bold mb-6 text-center">What Makes Us Different</h3>
                     <div class="space-y-4">
@@ -361,13 +368,7 @@
             <div>
                 <div class="bg-gradient-to-br from-amber-500/10 to-emerald-500/10 rounded-3xl p-2 border border-amber-500/20">
                     <div class="bg-dark-card rounded-2xl overflow-hidden">
-                        <div class="aspect-video bg-gradient-to-br from-blue-900 to-cyan-800 flex items-center justify-center">
-                            <div class="text-center">
-                                <div class="text-6xl mb-4">&#127962;</div>
-                                <div class="text-xl font-bold text-white">Fontainebleau Miami Beach</div>
-                                <div class="text-cyan-300 text-sm mt-1">4441 Collins Avenue, Miami Beach, FL 33140</div>
-                            </div>
-                        </div>
+                        <img src="{{ url_for('static', filename='images/venue.png') }}" alt="Mr. Easy Money at Fontainebleau Miami Beach" class="w-full h-auto" />
                     </div>
                 </div>
             </div>

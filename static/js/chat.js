@@ -1,12 +1,19 @@
-// Mr. Easy Money Chat Widget
+// Mr. Easy Money Chat Widget — with Voice Mode
 (function () {
     const WELCOME = "Hey there! I'm Mr. Easy Money. Ask me anything about budgeting, saving, investing, getting out of debt, or the Money Glow-Up course. No judgment, just real talk. Easy money, easy life! What's on your mind?";
 
     let messages = [];
     let isOpen = false;
     let isStreaming = false;
+    let voiceMode = false;
+    let recognition = null;
+    let isListening = false;
+    let synth = window.speechSynthesis;
 
-    // Build the widget DOM
+    // Check for speech recognition support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const hasVoice = !!SpeechRecognition;
+
     function createWidget() {
         // Floating button
         const btn = document.createElement("button");
@@ -30,17 +37,46 @@
                     <span class="text-2xl">&#128176;</span>
                     <div>
                         <div class="font-bold text-black text-sm">Mr. Easy Money</div>
-                        <div class="text-black/70 text-xs">Your AI Finance Coach</div>
+                        <div class="text-black/70 text-xs" id="chat-subtitle">Your AI Finance Coach</div>
                     </div>
                 </div>
-                <button onclick="document.getElementById('chat-toggle').click()" class="text-black/70 hover:text-black transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    ${hasVoice ? `<button id="voice-toggle" onclick="window.__mrem_toggleVoice()" class="text-black/70 hover:text-black transition-colors" title="Toggle voice mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </button>` : ''}
+                    <button onclick="document.getElementById('chat-toggle').click()" class="text-black/70 hover:text-black transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
-            <div class="border-t border-gray-700 p-3 flex-shrink-0">
+            <!-- Voice mode visualizer (hidden by default) -->
+            <div id="voice-visualizer" class="hidden border-t border-gray-700 p-4 flex-shrink-0">
+                <div class="flex flex-col items-center gap-3">
+                    <div id="voice-waves" class="flex items-center gap-1 h-8">
+                        <div class="voice-bar w-1 bg-amber-500 rounded-full" style="height:8px"></div>
+                        <div class="voice-bar w-1 bg-amber-400 rounded-full" style="height:12px"></div>
+                        <div class="voice-bar w-1 bg-emerald-500 rounded-full" style="height:16px"></div>
+                        <div class="voice-bar w-1 bg-emerald-400 rounded-full" style="height:20px"></div>
+                        <div class="voice-bar w-1 bg-amber-500 rounded-full" style="height:24px"></div>
+                        <div class="voice-bar w-1 bg-amber-400 rounded-full" style="height:16px"></div>
+                        <div class="voice-bar w-1 bg-emerald-500 rounded-full" style="height:12px"></div>
+                        <div class="voice-bar w-1 bg-emerald-400 rounded-full" style="height:8px"></div>
+                    </div>
+                    <div id="voice-status" class="text-gray-400 text-xs">Click the mic to start talking</div>
+                    <button id="mic-btn" onclick="window.__mrem_toggleMic()" class="w-14 h-14 rounded-full bg-gray-800 border-2 border-gray-600 flex items-center justify-center hover:border-amber-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Text input (shown by default) -->
+            <div id="text-input-area" class="border-t border-gray-700 p-3 flex-shrink-0">
                 <form id="chat-form" class="flex gap-2">
                     <input id="chat-input" type="text" placeholder="Ask me anything about money..."
                         class="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2 text-sm border border-gray-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-gray-400" />
@@ -52,11 +88,147 @@
             </div>`;
         document.body.appendChild(panel);
 
-        // Form handler
         document.getElementById("chat-form").onsubmit = function (e) {
             e.preventDefault();
             sendMessage();
         };
+
+        // Init speech recognition
+        if (hasVoice) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = "en-US";
+
+            recognition.onresult = function (e) {
+                let transcript = "";
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    transcript += e.results[i][0].transcript;
+                }
+                document.getElementById("voice-status").textContent = transcript || "Listening...";
+
+                if (e.results[e.results.length - 1].isFinal) {
+                    stopListening();
+                    if (transcript.trim()) {
+                        addMessage("user", transcript.trim());
+                        messages.push({ role: "user", content: transcript.trim() });
+                        streamResponse(true);
+                    }
+                }
+            };
+
+            recognition.onerror = function (e) {
+                console.error("Speech error:", e.error);
+                stopListening();
+                document.getElementById("voice-status").textContent = "Couldn't hear that. Try again.";
+            };
+
+            recognition.onend = function () {
+                if (isListening) stopListening();
+            };
+        }
+    }
+
+    // Expose voice controls globally (for onclick in HTML)
+    window.__mrem_toggleVoice = function () {
+        voiceMode = !voiceMode;
+        const voiceVis = document.getElementById("voice-visualizer");
+        const textArea = document.getElementById("text-input-area");
+        const voiceBtn = document.getElementById("voice-toggle");
+        const subtitle = document.getElementById("chat-subtitle");
+
+        if (voiceMode) {
+            voiceVis.classList.remove("hidden");
+            textArea.classList.add("hidden");
+            voiceBtn.classList.add("bg-black/20", "rounded-lg");
+            subtitle.textContent = "Voice Mode Active";
+            if (synth) synth.cancel();
+        } else {
+            voiceVis.classList.add("hidden");
+            textArea.classList.remove("hidden");
+            voiceBtn.classList.remove("bg-black/20", "rounded-lg");
+            subtitle.textContent = "Your AI Finance Coach";
+            if (isListening) stopListening();
+            if (synth) synth.cancel();
+        }
+    };
+
+    window.__mrem_toggleMic = function () {
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+        }
+    };
+
+    function startListening() {
+        if (!recognition || isStreaming) return;
+        isListening = true;
+        const micBtn = document.getElementById("mic-btn");
+        micBtn.classList.add("border-red-500", "bg-red-500/20");
+        micBtn.classList.remove("border-gray-600", "bg-gray-800");
+        document.getElementById("voice-status").textContent = "Listening...";
+        animateVoiceBars(true);
+        try { recognition.start(); } catch (e) { /* already started */ }
+    }
+
+    function stopListening() {
+        isListening = false;
+        const micBtn = document.getElementById("mic-btn");
+        if (micBtn) {
+            micBtn.classList.remove("border-red-500", "bg-red-500/20");
+            micBtn.classList.add("border-gray-600", "bg-gray-800");
+        }
+        animateVoiceBars(false);
+        try { recognition.stop(); } catch (e) { /* already stopped */ }
+    }
+
+    let barInterval = null;
+    function animateVoiceBars(active) {
+        const bars = document.querySelectorAll(".voice-bar");
+        if (barInterval) clearInterval(barInterval);
+        if (active) {
+            barInterval = setInterval(() => {
+                bars.forEach(bar => {
+                    bar.style.height = (4 + Math.random() * 28) + "px";
+                    bar.style.transition = "height 0.1s ease";
+                });
+            }, 100);
+        } else {
+            bars.forEach((bar, i) => {
+                bar.style.height = [8, 12, 16, 20, 24, 16, 12, 8][i] + "px";
+                bar.style.transition = "height 0.3s ease";
+            });
+        }
+    }
+
+    function speak(text) {
+        if (!synth || !voiceMode) return;
+        synth.cancel();
+        // Clean markdown for speech
+        const clean = text
+            .replace(/\*\*(.*?)\*\*/g, "$1")
+            .replace(/\n- /g, ". ")
+            .replace(/\n\d+\. /g, ". ")
+            .replace(/\n/g, ". ");
+
+        const utt = new SpeechSynthesisUtterance(clean);
+        utt.rate = 1.05;
+        utt.pitch = 0.95;
+        // Try to pick a good voice
+        const voices = synth.getVoices();
+        const preferred = voices.find(v => v.name.includes("Daniel") || v.name.includes("Google UK English Male") || v.name.includes("Alex"));
+        if (preferred) utt.voice = preferred;
+
+        utt.onstart = () => {
+            document.getElementById("voice-status").textContent = "Speaking...";
+            animateVoiceBars(true);
+        };
+        utt.onend = () => {
+            document.getElementById("voice-status").textContent = "Click the mic to talk";
+            animateVoiceBars(false);
+        };
+        synth.speak(utt);
     }
 
     function toggleChat() {
@@ -67,15 +239,16 @@
             panel.classList.remove("hidden");
             panel.classList.add("visible");
             btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
-            // Show welcome message on first open
             if (messages.length === 0) {
                 addMessage("assistant", WELCOME);
             }
-            document.getElementById("chat-input").focus();
+            if (!voiceMode) document.getElementById("chat-input").focus();
         } else {
             panel.classList.remove("visible");
             panel.classList.add("hidden");
             btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`;
+            if (synth) synth.cancel();
+            if (isListening) stopListening();
         }
     }
 
@@ -101,7 +274,6 @@
         const wrapper = document.createElement("div");
         wrapper.className = "flex justify-start";
         wrapper.id = "typing-indicator";
-
         const bubble = document.createElement("div");
         bubble.className = "bg-gray-800 rounded-2xl rounded-bl-md px-4 py-3";
         bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
@@ -116,7 +288,6 @@
     }
 
     function formatMarkdown(text) {
-        // Simple markdown: bold, line breaks, lists
         return text
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\n- /g, "<br>&bull; ")
@@ -133,9 +304,17 @@
         input.value = "";
         addMessage("user", text);
         messages.push({ role: "user", content: text });
+        await streamResponse(false);
+    }
 
+    async function streamResponse(shouldSpeak) {
         isStreaming = true;
-        document.getElementById("chat-send").disabled = true;
+        const sendBtn = document.getElementById("chat-send");
+        if (sendBtn) sendBtn.disabled = true;
+        if (voiceMode) {
+            document.getElementById("voice-status").textContent = "Thinking...";
+            animateVoiceBars(true);
+        }
         showTyping();
 
         try {
@@ -188,18 +367,31 @@
 
             messages.push({ role: "assistant", content: fullText });
 
-            // Keep conversation manageable
             if (messages.length > 20) {
                 messages = messages.slice(-20);
             }
+
+            // Speak the response in voice mode
+            if (shouldSpeak || voiceMode) {
+                speak(fullText);
+            }
         } catch (err) {
             removeTyping();
-            addMessage("assistant", "Oops! Something went wrong on my end. Try again in a sec. If the chat isn't working, it might mean the AI service is being set up. Check back soon!");
+            const errMsg = "Oops! Something went wrong on my end. Try again in a sec. If the chat isn't working, it might mean the AI service is being set up. Check back soon!";
+            addMessage("assistant", errMsg);
+            if (voiceMode) {
+                document.getElementById("voice-status").textContent = "Error — try again";
+                animateVoiceBars(false);
+            }
             console.error("Chat error:", err);
         } finally {
             isStreaming = false;
-            document.getElementById("chat-send").disabled = false;
-            document.getElementById("chat-input").focus();
+            const sendBtn = document.getElementById("chat-send");
+            if (sendBtn) sendBtn.disabled = false;
+            if (!voiceMode) {
+                const inp = document.getElementById("chat-input");
+                if (inp) inp.focus();
+            }
         }
     }
 
