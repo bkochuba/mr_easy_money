@@ -2,6 +2,8 @@ import os
 import io
 import json
 import math
+import struct
+import wave
 from datetime import datetime
 from flask import Flask, request, Response, render_template, stream_with_context, jsonify, send_file
 from dotenv import load_dotenv
@@ -463,9 +465,21 @@ def chat():
     )
 
 
+def pcm_to_wav(pcm_data, sample_rate=24000, channels=1, sample_width=2):
+    """Convert raw PCM audio to WAV format."""
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(sample_width)
+        wf.setframerate(sample_rate)
+        wf.writeframes(pcm_data)
+    buf.seek(0)
+    return buf.read()
+
+
 @app.route("/api/voice", methods=["POST"])
 def voice_chat():
-    """Accept audio, transcribe with Gemini, get Mr. Easy Money response, return text."""
+    """Accept audio, transcribe with Gemini, get response + TTS audio back."""
     if not GEMINI_API_KEY:
         return jsonify({"error": "Voice chat unavailable. API key not configured."}), 503
 
@@ -484,7 +498,6 @@ def voice_chat():
     if len(audio_bytes) < 100:
         return jsonify({"error": "Audio too short."}), 400
 
-    # Get conversation history from form data
     history_json = request.form.get("history", "[]")
     try:
         history = json.loads(history_json)
@@ -508,8 +521,8 @@ def voice_chat():
     except Exception as e:
         return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
 
-    # Step 2: Get Mr. Easy Money response
-    history = history[-18:]  # Keep manageable
+    # Step 2: Get Mr. Easy Money text response
+    history = history[-18:]
     gemini_contents = []
     for msg in history:
         role = "user" if msg["role"] == "user" else "model"
@@ -529,9 +542,37 @@ def voice_chat():
     except Exception as e:
         return jsonify({"error": f"Response generation failed: {str(e)}"}), 500
 
+    # Step 3: Generate TTS audio with Gemini
+    audio_b64 = None
+    try:
+        tts_resp = client.models.generate_content(
+            model="gemini-2.5-flash-preview-tts",
+            contents=assistant_text,
+            config=types.GenerateContentConfig(
+                response_modalities=["AUDIO"],
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                            voice_name="Orus"  # Smooth, confident male voice
+                        )
+                    )
+                ),
+            ),
+        )
+        for part in tts_resp.candidates[0].content.parts:
+            if part.inline_data and part.inline_data.data:
+                wav_data = pcm_to_wav(part.inline_data.data)
+                import base64
+                audio_b64 = base64.b64encode(wav_data).decode("utf-8")
+                break
+    except Exception as e:
+        print(f"TTS generation error (non-fatal): {e}")
+        # Non-fatal — will fall back to browser TTS
+
     return jsonify({
         "user_text": user_text,
         "assistant_text": assistant_text,
+        "audio": audio_b64,  # base64 WAV or None
     })
 
 

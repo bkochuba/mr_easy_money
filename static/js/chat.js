@@ -228,14 +228,19 @@
             addMessage("user", data.user_text);
             messages.push({ role: "user", content: data.user_text });
 
-            // Show and speak assistant response
+            // Show assistant response
             addMessage("assistant", data.assistant_text);
             messages.push({ role: "assistant", content: data.assistant_text });
 
             if (messages.length > 20) messages = messages.slice(-20);
 
-            // Speak the response
-            speak(data.assistant_text);
+            // Play server-generated TTS audio (Gemini natural voice)
+            if (data.audio) {
+                playAudio(data.audio);
+            } else {
+                // Fallback to browser TTS if server TTS failed
+                speak(data.assistant_text);
+            }
 
         } catch (err) {
             console.error("Voice error:", err);
@@ -244,6 +249,29 @@
         } finally {
             isStreaming = false;
         }
+    }
+
+    function playAudio(base64Wav) {
+        const bytes = atob(base64Wav);
+        const buf = new ArrayBuffer(bytes.length);
+        const arr = new Uint8Array(buf);
+        for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+        const blob = new Blob([buf], { type: "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        document.getElementById("voice-status").textContent = "Speaking...";
+        animateVoiceBars(true);
+        audio.onended = function () {
+            URL.revokeObjectURL(url);
+            document.getElementById("voice-status").textContent = "Tap mic to talk";
+            animateVoiceBars(false);
+        };
+        audio.onerror = function () {
+            URL.revokeObjectURL(url);
+            // Fallback to browser TTS
+            speak(messages[messages.length - 1]?.content || "");
+        };
+        audio.play();
     }
 
     // ========== Voice Bars Animation ==========
