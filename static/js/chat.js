@@ -9,7 +9,7 @@
     let isRecording = false;
     let mediaRecorder = null;
     let audioChunks = [];
-    let synth = window.speechSynthesis;
+    // No browser Speech Synthesis — all TTS via Gemini server
 
     // Voice is available if browser supports MediaRecorder (virtually all modern browsers)
     const hasVoice = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
@@ -108,14 +108,12 @@
             textArea.classList.add("hidden");
             voiceBtn.classList.add("bg-black/20", "rounded-lg");
             subtitle.textContent = "Voice Mode Active";
-            if (synth) synth.cancel();
         } else {
             voiceVis.classList.add("hidden");
             textArea.classList.remove("hidden");
             voiceBtn.classList.remove("bg-black/20", "rounded-lg");
             subtitle.textContent = "Your AI Finance Coach";
             if (isRecording) stopRecording(true); // discard
-            if (synth) synth.cancel();
         }
     };
 
@@ -326,39 +324,7 @@
         }
     }
 
-    // ========== Text-to-Speech ==========
-
-    function speak(text) {
-        if (!synth || !voiceMode) return;
-        synth.cancel();
-        const clean = text
-            .replace(/\*\*(.*?)\*\*/g, "$1")
-            .replace(/\n- /g, ". ")
-            .replace(/\n\d+\. /g, ". ")
-            .replace(/\n/g, ". ");
-
-        const utt = new SpeechSynthesisUtterance(clean);
-        utt.rate = 1.05;
-        utt.pitch = 0.95;
-        const voices = synth.getVoices();
-        const preferred = voices.find(v =>
-            v.name.includes("Daniel") ||
-            v.name.includes("Google UK English Male") ||
-            v.name.includes("Alex") ||
-            v.name.includes("Samantha")
-        );
-        if (preferred) utt.voice = preferred;
-
-        utt.onstart = () => {
-            document.getElementById("voice-status").textContent = "Speaking...";
-            animateVoiceBars(true);
-        };
-        utt.onend = () => {
-            document.getElementById("voice-status").textContent = "Tap mic to talk";
-            animateVoiceBars(false);
-        };
-        synth.speak(utt);
-    }
+    // All TTS handled by fetchAndPlayTTS() via Gemini server — no browser Speech Synthesis
 
     // ========== Chat Core ==========
 
@@ -376,7 +342,6 @@
             panel.classList.remove("visible");
             panel.classList.add("hidden");
             btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`;
-            if (synth) synth.cancel();
             if (isRecording) stopRecording(true);
         }
     }
@@ -487,8 +452,8 @@
             messages.push({ role: "assistant", content: fullText });
             if (messages.length > 20) messages = messages.slice(-20);
 
-            // If voice mode is on, speak the text response too
-            if (voiceMode) speak(fullText);
+            // If voice mode is on, fetch TTS for the text response too
+            if (voiceMode) fetchAndPlayTTS(fullText);
 
         } catch (err) {
             removeTyping();
