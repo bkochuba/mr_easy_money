@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mr. Easy Money | The Money Glow-Up</title>
+    <meta name="description" content="The 3-day live experience that transforms your relationship with money. Budgeting, investing, and wealth-building made easy. Miami Beach, Oct 17-19, 2026." />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Inter', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+            --color-gold: #f59e0b;
+            --color-gold-dark: #d97706;
+            --color-mint: #10b981;
+            --color-dark: #0f0f23;
+            --color-dark-card: #1a1a2e;
+            --color-dark-border: #2a2a4a;
+        }
+    </style>
+</head>
+<body class="bg-dark text-white font-sans antialiased">
+
+<!-- ==================== NAVIGATION ==================== -->
+<nav id="navbar" class="fixed top-0 w-full z-40 transition-all duration-300 bg-dark/80 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20">
+            <a href="#" class="flex items-center gap-2">
+                <span class="text-3xl">&#128176;</span>
+                <span class="font-serif font-bold text-xl sm:text-2xl text-gold">Mr. Easy Money</span>
+            </a>
+            <!-- Desktop nav -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#course" class="text-gray-300 hover:text-gold transition-colors text-sm font-medium">The Course</a>
+                <a href="#curriculum" class="text-gray-300 hover:text-gold transition-colors text-sm font-medium">Curriculum</a>
+                <a href="#venue" class="text-gray-300 hover:text-gold transition-colors text-sm font-medium">Venue</a>
+                <a href="#pricing" class="text-gray-300 hover:text-gold transition-colors text-sm font-medium">Pricing</a>
+                <a href="#faq" class="text-gray-300 hover:text-gold transition-colors text-sm font-medium">FAQ</a>
+                <a href="#pricing" class="gold-gradient text-black font-bold px-6 py-2.5 rounded-full text-sm hover:opacity-90 transition-opacity">
+                    Reserve Your Seat
+                </a>
+            </div>
+            <!-- Mobile menu button -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-white" onclick="document.getElementById('mobile-menu').classList.toggle('translate-x-full')">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile menu -->
+<div id="mobile-menu" class="fixed inset-y-0 right-0 z-50 w-72 bg-dark-card border-l border-dark-border transform translate-x-full transition-transform duration-300 md:hidden">
+    <div class="p-6">
+        <button onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <div class="mt-8 space-y-6">
+            <a href="#course" onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="block text-gray-300 hover:text-gold text-lg">The Course</a>
+            <a href="#curriculum" onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="block text-gray-300 hover:text-gold text-lg">Curriculum</a>
+            <a href="#venue" onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="block text-gray-300 hover:text-gold text-lg">Venue</a>
+            <a href="#pricing" onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="block text-gray-300 hover:text-gold text-lg">Pricing</a>
+            <a href="#faq" onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="block text-gray-300 hover:text-gold text-lg">FAQ</a>
+            <a href="#pricing" onclick="document.getElementById('mobile-menu').classList.add('translate-x-full')" class="gold-gradient text-black font-bold px-6 py-3 rounded-full text-center block">Reserve Your Seat</a>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero-gradient min-h-screen flex items-center relative overflow-hidden pt-20">
+    <!-- Decorative elements -->
+    <div class="absolute top-20 left-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl float-animation"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl float-animation-delayed"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-block bg-amber-500/10 border border-amber-500/30 rounded-full px-6 py-2 mb-8">
+                <span class="text-amber-400 text-sm font-semibold tracking-wide">OCTOBER 17-19, 2026 &bull; MIAMI BEACH</span>
+            </div>
+
+            <h1 class="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[1.05] mb-6">
+                <span class="block text-white">The Money</span>
+                <span class="gradient-text">Glow-Up</span>
+            </h1>
+
+            <p class="text-xl sm:text-2xl text-gray-300 max-w-2xl mx-auto mb-4 leading-relaxed">
+                A 3-day live experience that transforms your relationship with money.
+                No shame. No jargon. Just results.
+            </p>
+            <p class="text-lg text-gray-400 mb-10">
+                Hosted at the <strong class="text-white">Fontainebleau Miami Beach</strong> by <strong class="text-amber-400">Mr. Easy Money</strong>
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#pricing" class="gold-gradient text-black font-bold px-10 py-4 rounded-full text-lg hover:opacity-90 transition-opacity pulse-gold inline-block">
+                    Reserve Your Seat &mdash; Starting at $497
+                </a>
+                <button onclick="document.getElementById('chat-toggle').click()" class="border-2 border-amber-500/50 text-amber-400 font-bold px-10 py-4 rounded-full text-lg hover:bg-amber-500/10 transition-colors">
+                    Chat with Mr. Easy Money
+                </button>
+            </div>
+
+            <div class="mt-12 flex flex-wrap justify-center gap-8 text-sm text-gray-400">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    30-Day Money-Back Guarantee
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    Only 150 Seats
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    Livestream Option Available
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SOCIAL PROOF BAR ==================== -->
+<section class="bg-dark-card border-y border-dark-border py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+                <div class="text-3xl sm:text-4xl font-black text-gold">10,000+</div>
+                <div class="text-gray-400 text-sm mt-1">Students Enrolled</div>
+            </div>
+            <div>
+                <div class="text-3xl sm:text-4xl font-black text-gold">$47M+</div>
+                <div class="text-gray-400 text-sm mt-1">Debt Eliminated</div>
+            </div>
+            <div>
+                <div class="text-3xl sm:text-4xl font-black text-gold">4.9/5</div>
+                <div class="text-gray-400 text-sm mt-1">Average Rating</div>
+            </div>
+            <div>
+                <div class="text-3xl sm:text-4xl font-black text-gold">34</div>
+                <div class="text-gray-400 text-sm mt-1">Countries Represented</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== ABOUT / THE COURSE ==================== -->
+<section id="course" class="py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">About The Course</span>
+                <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4 mb-6">
+                    Other programs charge $3,000&ndash;$15,000.<br/>
+                    <span class="text-gold">We start at $497.</span>
+                </h2>
+                <p class="text-gray-300 text-lg leading-relaxed mb-6">
+                    The Money Glow-Up is a 3-day immersive experience designed for real people with real financial lives.
+                    Whether you're drowning in debt or sitting on savings you're too scared to invest &mdash; this is for you.
+                </p>
+                <p class="text-gray-300 text-lg leading-relaxed mb-8">
+                    We combine <strong class="text-white">behavioral psychology</strong>, <strong class="text-white">practical financial strategy</strong>,
+                    and <strong class="text-white">hands-on workshops</strong> so you leave with a complete money system &mdash; not just inspiration.
+                </p>
+                <div class="grid sm:grid-cols-3 gap-6">
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 text-center">
+                        <div class="text-3xl mb-3">&#127793;</div>
+                        <div class="font-bold text-white mb-1">Evidence-Based</div>
+                        <div class="text-gray-400 text-sm">Real science, not woo</div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 text-center">
+                        <div class="text-3xl mb-3">&#127758;</div>
+                        <div class="font-bold text-white mb-1">Inclusive</div>
+                        <div class="text-gray-400 text-sm">Every income level</div>
+                    </div>
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 text-center">
+                        <div class="text-3xl mb-3">&#9889;</div>
+                        <div class="font-bold text-white mb-1">Actionable</div>
+                        <div class="text-gray-400 text-sm">Leave with a plan</div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="bg-gradient-to-br from-amber-500/20 to-emerald-500/20 rounded-3xl p-8 border border-amber-500/20">
+                    <h3 class="font-serif text-2xl font-bold mb-6 text-center">What Makes Us Different</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <span class="text-emerald-400 mt-1 flex-shrink-0">&#10003;</span>
+                            <span class="text-gray-200"><strong class="text-white">Transparent pricing</strong> &mdash; no email funnel required to see costs</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-emerald-400 mt-1 flex-shrink-0">&#10003;</span>
+                            <span class="text-gray-200"><strong class="text-white">No-questions-asked refund</strong> &mdash; 30 days, no hoops to jump through</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-emerald-400 mt-1 flex-shrink-0">&#10003;</span>
+                            <span class="text-gray-200"><strong class="text-white">AI-powered coaching</strong> &mdash; get personalized advice 24/7 after the event</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-emerald-400 mt-1 flex-shrink-0">&#10003;</span>
+                            <span class="text-gray-200"><strong class="text-white">Partner-friendly</strong> &mdash; bring your partner free with any VIP ticket</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-emerald-400 mt-1 flex-shrink-0">&#10003;</span>
+                            <span class="text-gray-200"><strong class="text-white">For ALL income levels</strong> &mdash; whether you make $30K or $300K</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-emerald-400 mt-1 flex-shrink-0">&#10003;</span>
+                            <span class="text-gray-200"><strong class="text-white">Lifetime content access</strong> &mdash; recordings + materials are yours forever</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== 3-DAY CURRICULUM ==================== -->
+<section id="curriculum" class="py-24 bg-dark-card">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">The 3-Day Curriculum</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">
+                Three Days. Total <span class="text-gold">Transformation.</span>
+            </h2>
+            <p class="text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
+                Each day builds on the last. You'll leave Sunday with a complete money system, not just notes.
+            </p>
+        </div>
+
+        <!-- DAY 1 -->
+        <div class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-2xl font-black flex-shrink-0">1</div>
+                <div>
+                    <h3 class="font-serif text-3xl font-bold">The Money Detox</h3>
+                    <p class="text-gray-400">Friday, October 17 &bull; 9:00 AM &ndash; 6:00 PM</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 ml-0 md:ml-20">
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-amber-400 font-bold text-sm mb-2">9:00 AM &ndash; 10:30 AM</div>
+                    <h4 class="font-bold text-lg mb-2">Opening Ceremony: Kill the Money Shame</h4>
+                    <p class="text-gray-400 text-sm">Interactive exercise where you write down every money belief holding you back &mdash; then we literally shred them on stage. Guided nervous system reset to start from a clean slate.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-amber-400 font-bold text-sm mb-2">10:45 AM &ndash; 12:30 PM</div>
+                    <h4 class="font-bold text-lg mb-2">The Financial Autopsy</h4>
+                    <p class="text-gray-400 text-sm">Laptops open. We audit your accounts LIVE. Income, expenses, debt, subscriptions &mdash; everything gets laid bare. You'll use our custom Money Map worksheet to see exactly where every dollar goes.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-amber-400 font-bold text-sm mb-2">1:30 PM &ndash; 3:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">The Values Alignment Workshop</h4>
+                    <p class="text-gray-400 text-sm">Discover your Money Values through our proprietary assessment. Learn why you overspend in some areas and feel guilty in others. Redesign your spending to match what actually makes you happy.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-amber-400 font-bold text-sm mb-2">3:15 PM &ndash; 5:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">Automation Station</h4>
+                    <p class="text-gray-400 text-sm">Hands-on setup session. You'll leave with automated transfers to savings, investments, and bills. Bank-specific walkthroughs for Chase, BofA, Wells Fargo, Capital One, and credit unions. Your money will run itself.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6 md:col-span-2 border-amber-500/30">
+                    <div class="text-amber-400 font-bold text-sm mb-2">5:15 PM &ndash; 6:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">&#127860; Poolside Happy Hour + Money Story Open Mic</h4>
+                    <p class="text-gray-400 text-sm">Cocktails by the Fontainebleau pool. Optional open mic where attendees share their money stories. This is where the real breakthroughs happen &mdash; when you realize everyone's been faking it.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAY 2 -->
+        <div class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl font-black flex-shrink-0">2</div>
+                <div>
+                    <h3 class="font-serif text-3xl font-bold">The Wealth Blueprint</h3>
+                    <p class="text-gray-400">Saturday, October 18 &bull; 9:00 AM &ndash; 8:00 PM</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 ml-0 md:ml-20">
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-emerald-400 font-bold text-sm mb-2">9:00 AM &ndash; 10:30 AM</div>
+                    <h4 class="font-bold text-lg mb-2">Debt Destruction Masterclass</h4>
+                    <p class="text-gray-400 text-sm">The math AND the emotions of debt payoff. Avalanche vs. snowball methods. Live demonstration: calling a credit card company to negotiate a lower rate (Mr. Easy Money does it on speakerphone). You'll get the exact scripts.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-emerald-400 font-bold text-sm mb-2">10:45 AM &ndash; 12:30 PM</div>
+                    <h4 class="font-bold text-lg mb-2">Investing for Humans (Not Finance Bros)</h4>
+                    <p class="text-gray-400 text-sm">Index funds, ETFs, Roth IRAs, 401(k)s &mdash; explained like you're talking to a friend. We'll open a brokerage account together (for those who don't have one) and make your first investment LIVE in the room.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-emerald-400 font-bold text-sm mb-2">1:30 PM &ndash; 3:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">The Salary Negotiation Lab</h4>
+                    <p class="text-gray-400 text-sm">Role-play negotiation scenarios with a partner. Word-for-word scripts for asking for a raise, negotiating a new offer, and freelance rate-setting. Guest speaker: a Fortune 500 hiring manager reveals what actually works.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-emerald-400 font-bold text-sm mb-2">3:15 PM &ndash; 5:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">Side Hustle Sprint</h4>
+                    <p class="text-gray-400 text-sm">Identify your highest-value side income opportunity using the Three Ts framework (Time, Skills, Target). By 5 PM, you'll have a name, a price, and your first potential client identified. No vague "follow your passion" advice.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6 md:col-span-2 border-emerald-500/30">
+                    <div class="text-emerald-400 font-bold text-sm mb-2">6:30 PM &ndash; 8:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">&#127881; The Money Glow-Up Gala Dinner</h4>
+                    <p class="text-gray-400 text-sm">Private dinner at the Fontainebleau's Stripsteak by Michael Mina. Dress code: look like the money you're about to make. Networking, celebration, and a surprise keynote from a self-made millionaire who started with nothing.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAY 3 -->
+        <div>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-2xl font-black flex-shrink-0">3</div>
+                <div>
+                    <h3 class="font-serif text-3xl font-bold">The Glow-Up</h3>
+                    <p class="text-gray-400">Sunday, October 19 &bull; 9:00 AM &ndash; 4:00 PM</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 ml-0 md:ml-20">
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-violet-400 font-bold text-sm mb-2">9:00 AM &ndash; 10:30 AM</div>
+                    <h4 class="font-bold text-lg mb-2">The 90-Day Money Action Plan</h4>
+                    <p class="text-gray-400 text-sm">Build your personalized 90-day roadmap. Week by week, action by action. This isn't a vision board &mdash; it's a project plan with deadlines, milestones, and accountability checkpoints built in.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-violet-400 font-bold text-sm mb-2">10:45 AM &ndash; 12:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">Couples & Money Workshop</h4>
+                    <p class="text-gray-400 text-sm">How to have productive money conversations with your partner (or anyone you share finances with). Communication frameworks, joint vs. separate accounts strategies, and the Money Date ritual you'll do weekly.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-violet-400 font-bold text-sm mb-2">1:00 PM &ndash; 2:30 PM</div>
+                    <h4 class="font-bold text-lg mb-2">Advanced Strategies Panel</h4>
+                    <p class="text-gray-400 text-sm">Tax optimization, real estate basics, HSA hacking, backdoor Roth conversions, I-bonds, and credit score maximization. A panel of CFPs, tax professionals, and real estate investors answer YOUR questions live.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6">
+                    <div class="text-violet-400 font-bold text-sm mb-2">2:45 PM &ndash; 3:30 PM</div>
+                    <h4 class="font-bold text-lg mb-2">Accountability Pod Setup</h4>
+                    <p class="text-gray-400 text-sm">Get matched with 4-5 people at your level. Exchange contacts, set your first group Money Date, and join your private pod in the Mr. Easy Money app. These pods have a 73% higher success rate than going solo.</p>
+                </div>
+                <div class="bg-dark border border-dark-border rounded-xl p-6 md:col-span-2 border-violet-500/30">
+                    <div class="text-violet-400 font-bold text-sm mb-2">3:30 PM &ndash; 4:00 PM</div>
+                    <h4 class="font-bold text-lg mb-2">&#127942; Closing Ceremony: The Glow-Up Pledge</h4>
+                    <p class="text-gray-400 text-sm">A powerful group commitment ceremony. You'll stand up, state your 90-day financial goal to the room, and sign the Glow-Up Pledge. Then we celebrate. Confetti. Music. The works. You leave a different person than you arrived.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== VENUE ==================== -->
+<section id="venue" class="py-24 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-dark via-dark-card/50 to-dark"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-16">
+            <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">The Venue</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">
+                Learn About Money Where <span class="text-gold">Money Lives</span>
+            </h2>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="bg-gradient-to-br from-amber-500/10 to-emerald-500/10 rounded-3xl p-2 border border-amber-500/20">
+                    <div class="bg-dark-card rounded-2xl overflow-hidden">
+                        <div class="aspect-video bg-gradient-to-br from-blue-900 to-cyan-800 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-6xl mb-4">&#127962;</div>
+                                <div class="text-xl font-bold text-white">Fontainebleau Miami Beach</div>
+                                <div class="text-cyan-300 text-sm mt-1">4441 Collins Avenue, Miami Beach, FL 33140</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-serif text-3xl font-bold mb-6">Fontainebleau Miami Beach</h3>
+                <p class="text-gray-300 text-lg mb-6 leading-relaxed">
+                    If you're going to transform your relationship with money, you should do it somewhere that
+                    <em>feels</em> like money. The Fontainebleau is an icon &mdash; and the energy in that building
+                    will remind you what you're working toward.
+                </p>
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <span class="text-amber-400">&#10003;</span>
+                        <span>Private ballroom with ocean views for all sessions</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <span class="text-amber-400">&#10003;</span>
+                        <span>Discounted room block: $289/night (normally $550+)</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <span class="text-amber-400">&#10003;</span>
+                        <span>Pool access for all attendees (hello, happy hour)</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <span class="text-amber-400">&#10003;</span>
+                        <span>Breakfast and lunch provided all 3 days</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <span class="text-amber-400">&#10003;</span>
+                        <span>Private gala dinner at Stripsteak by Michael Mina (Day 2)</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-300">
+                        <span class="text-amber-400">&#10003;</span>
+                        <span>10 minutes from MIA airport &mdash; easy in, easy out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FEATURES ==================== -->
+<section class="py-24 bg-dark-card">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">What You Get</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">
+                Way More Than a <span class="text-gold">Weekend</span>
+            </h2>
+            <p class="text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
+                Your ticket includes lifetime access to tools that keep working long after you leave Miami.
+            </p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#129302;</div>
+                <h3 class="font-bold text-lg mb-2">AI Finance Coach</h3>
+                <p class="text-gray-400 text-sm">24/7 access to Mr. Easy Money AI. Ask anything about budgeting, investing, or debt. Personalized to YOUR situation.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#128220;</div>
+                <h3 class="font-bold text-lg mb-2">Script Library</h3>
+                <p class="text-gray-400 text-sm">50+ word-for-word scripts for salary negotiation, debt calls, rent negotiation, and money talks with your partner.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#128200;</div>
+                <h3 class="font-bold text-lg mb-2">Progress Dashboard</h3>
+                <p class="text-gray-400 text-sm">Track your debt payoff, savings growth, net worth, and 90-day goals in one beautiful dashboard.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#128101;</div>
+                <h3 class="font-bold text-lg mb-2">Accountability Pods</h3>
+                <p class="text-gray-400 text-sm">Matched with 4-5 people at your level. Weekly Money Dates, shared goals, and built-in peer support.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#128149;</div>
+                <h3 class="font-bold text-lg mb-2">Partner Mode</h3>
+                <p class="text-gray-400 text-sm">VIP tickets include your partner free. Joint Money Dates, couples exercises, and shared financial goals.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#127891;</div>
+                <h3 class="font-bold text-lg mb-2">Expert Panel Access</h3>
+                <p class="text-gray-400 text-sm">CFPs, tax pros, and real estate investors on our advisory panel. Real credentials, real advice. Not influencer opinions.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#127909;</div>
+                <h3 class="font-bold text-lg mb-2">Lifetime Recordings</h3>
+                <p class="text-gray-400 text-sm">Every session professionally recorded. Yours forever. No "lifetime access" that magically disappears.</p>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-xl p-6 hover:border-amber-500/50 transition-colors">
+                <div class="text-3xl mb-4">&#128640;</div>
+                <h3 class="font-bold text-lg mb-2">90-Day Follow-Up</h3>
+                <p class="text-gray-400 text-sm">3 monthly group coaching calls after the event. Weekly email check-ins. We don't just inspire you and disappear.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== PRICING ==================== -->
+<section id="pricing" class="py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">Transparent Pricing</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">
+                Pick Your <span class="text-gold">Glow-Up Level</span>
+            </h2>
+            <p class="text-gray-400 mt-4 text-lg max-w-2xl mx-auto">
+                No hidden fees. No email funnel to see prices. No gotchas. What you see is what you pay.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <!-- Livestream -->
+            <div class="pricing-card bg-dark-card border border-dark-border rounded-2xl p-6 flex flex-col">
+                <div class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Livestream</div>
+                <div class="flex items-baseline gap-1 mb-4">
+                    <span class="text-4xl font-black text-white">$197</span>
+                </div>
+                <p class="text-gray-400 text-sm mb-6">Watch from anywhere. Full experience, zero travel costs.</p>
+                <ul class="space-y-3 mb-8 flex-1">
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>All 3 days livestreamed in HD</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Lifetime recording access</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>All worksheets + templates</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Chat participation during sessions</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Community access (6 months)</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>AI Coach access (6 months)</li>
+                </ul>
+                <a href="#" class="block text-center border-2 border-gray-600 text-white font-bold py-3 rounded-full hover:bg-white/5 transition-colors">Get Livestream</a>
+            </div>
+
+            <!-- General Admission -->
+            <div class="pricing-card bg-dark-card border border-dark-border rounded-2xl p-6 flex flex-col">
+                <div class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">General Admission</div>
+                <div class="flex items-baseline gap-1 mb-4">
+                    <span class="text-4xl font-black text-white">$497</span>
+                </div>
+                <p class="text-gray-400 text-sm mb-6">The full in-person experience at an unbeatable price.</p>
+                <ul class="space-y-3 mb-8 flex-1">
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Everything in Livestream</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>3 days in-person at Fontainebleau</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Breakfast + lunch all 3 days</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Poolside happy hour (Day 1)</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Accountability pod matching</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-emerald-400 mt-0.5">&#10003;</span>Community + AI Coach (12 months)</li>
+                </ul>
+                <a href="#" class="block text-center border-2 border-gray-600 text-white font-bold py-3 rounded-full hover:bg-white/5 transition-colors">Get General Admission</a>
+            </div>
+
+            <!-- VIP (Highlighted) -->
+            <div class="pricing-card bg-gradient-to-b from-amber-500/10 to-dark-card border-2 border-amber-500 rounded-2xl p-6 flex flex-col relative">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black font-bold text-xs px-4 py-1 rounded-full uppercase tracking-wide">Most Popular</div>
+                <div class="text-sm font-semibold text-amber-400 uppercase tracking-wide mb-2">VIP Experience</div>
+                <div class="flex items-baseline gap-1 mb-4">
+                    <span class="text-4xl font-black text-white">$997</span>
+                </div>
+                <p class="text-gray-400 text-sm mb-6">The premium experience. Bring your partner free.</p>
+                <ul class="space-y-3 mb-8 flex-1">
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Everything in General Admission</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span><strong class="text-white">Partner attends FREE</strong></li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Gala dinner at Stripsteak (Day 2)</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Priority seating (first 3 rows)</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>90-day group coaching (3 calls)</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Private Telegram group with Mr. Easy Money</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-amber-400 mt-0.5">&#9733;</span>Community + AI Coach (lifetime)</li>
+                </ul>
+                <a href="#" class="block text-center gold-gradient text-black font-bold py-3 rounded-full hover:opacity-90 transition-opacity">Get VIP Access</a>
+            </div>
+
+            <!-- Inner Circle -->
+            <div class="pricing-card bg-dark-card border border-dark-border rounded-2xl p-6 flex flex-col">
+                <div class="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-2">Inner Circle</div>
+                <div class="flex items-baseline gap-1 mb-4">
+                    <span class="text-4xl font-black text-white">$2,497</span>
+                </div>
+                <p class="text-gray-400 text-sm mb-6">For serious wealth builders who want direct access.</p>
+                <ul class="space-y-3 mb-8 flex-1">
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-violet-400 mt-0.5">&#9830;</span>Everything in VIP</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-violet-400 mt-0.5">&#9830;</span>Private dinner with Mr. Easy Money (10 seats)</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-violet-400 mt-0.5">&#9830;</span>1-on-1 financial plan session (60 min) with CFP</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-violet-400 mt-0.5">&#9830;</span>Quarterly 1-on-1 coaching for a year</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-violet-400 mt-0.5">&#9830;</span>Custom investment portfolio review</li>
+                    <li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-violet-400 mt-0.5">&#9830;</span>All future events at 50% off for life</li>
+                </ul>
+                <a href="#" class="block text-center border-2 border-violet-500 text-violet-400 font-bold py-3 rounded-full hover:bg-violet-500/10 transition-colors">Apply for Inner Circle</a>
+            </div>
+        </div>
+
+        <div class="text-center mt-10">
+            <p class="text-gray-400 text-sm">
+                &#128274; 30-day money-back guarantee, no questions asked. Payment plans available for all tiers.
+                <br/>Need-based scholarships available &mdash; <a href="#" class="text-amber-400 underline">apply here</a>.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== TESTIMONIALS ==================== -->
+<section class="py-24 bg-dark-card">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">Real Results</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">
+                The <span class="text-gold">Glow-Up</span> Is Real
+            </h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-dark border border-dark-border rounded-2xl p-6">
+                <div class="flex items-center gap-1 text-amber-400 mb-4">
+                    <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+                </div>
+                <p class="text-gray-300 mb-6 italic">"I came in with $34K in credit card debt and a pit in my stomach every time I opened my banking app. The Automation Station session alone changed everything. 8 months later &mdash; $22K paid off, automated savings growing, and I actually LIKE looking at my numbers now."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-emerald-500 flex items-center justify-center font-bold text-black">M</div>
+                    <div>
+                        <div class="font-bold text-sm">Marcus T.</div>
+                        <div class="text-gray-500 text-xs">Teacher, Atlanta &bull; Paid off $22K in 8 months</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-2xl p-6">
+                <div class="flex items-center gap-1 text-amber-400 mb-4">
+                    <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+                </div>
+                <p class="text-gray-300 mb-6 italic">"The salary negotiation scripts are GOLD. I used them word-for-word and got a $14,000 raise at my review. My manager literally said 'you came prepared.' The course paid for itself 14x over in the first year."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-violet-500 flex items-center justify-center font-bold text-black">J</div>
+                    <div>
+                        <div class="font-bold text-sm">Jessica R.</div>
+                        <div class="text-gray-500 text-xs">Marketing Manager, Denver &bull; $14K raise</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-dark border border-dark-border rounded-2xl p-6">
+                <div class="flex items-center gap-1 text-amber-400 mb-4">
+                    <span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span><span>&#9733;</span>
+                </div>
+                <p class="text-gray-300 mb-6 italic">"My wife and I were fighting about money every week. Went to the VIP together. The Couples & Money Workshop gave us a shared language. We do our weekly Money Date now &mdash; it's actually fun? We saved $11K in 6 months for the first time ever."</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center font-bold text-black">D</div>
+                    <div>
+                        <div class="font-bold text-sm">David & Maria K.</div>
+                        <div class="text-gray-500 text-xs">Freelancers, Chicago &bull; First $11K saved as a couple</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section id="faq" class="py-24">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-amber-400 font-semibold text-sm tracking-widest uppercase">FAQ</span>
+            <h2 class="font-serif text-4xl sm:text-5xl font-bold mt-4">Got Questions?</h2>
+        </div>
+        <div class="space-y-4">
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">Is this just another "mindset" course with no real financial advice?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">No. We address the psychology of money (because it matters) but every session includes hands-on, practical work. You'll literally open investment accounts, set up automation, and build a 90-day plan during the course. We also have a panel of licensed CFPs and tax professionals. Real credentials, not just vibes.</p>
+                </div>
+            </div>
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">I'm in serious debt. Is this for me?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">Absolutely. Day 1 is entirely focused on getting control of your current situation, and the Debt Destruction Masterclass on Day 2 gives you the exact system and scripts to accelerate payoff. We've had attendees paying off $20K+ within a year. If you're in crisis-level debt, we also provide free referrals to NFCC-certified nonprofit credit counselors.</p>
+                </div>
+            </div>
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">What's your refund policy?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">30 days, no questions asked, no hoops to jump through. Email us, get your money back. We don't require you to "complete 4 modules and fill out 3 worksheets" before qualifying for a refund. That's not how we operate. If it's not for you, it's not for you.</p>
+                </div>
+            </div>
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">I make under $40K/year. Will this work for me?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">Yes. Unlike some programs that assume you have a 401(k) and a $100K salary, our curriculum is designed for ALL income levels. Gig workers, hourly employees, freelancers, single parents &mdash; we've got you. We also offer need-based scholarships and a $197 livestream option so cost isn't a barrier.</p>
+                </div>
+            </div>
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">Can I bring my partner?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">VIP and Inner Circle tickets include your partner completely free. General Admission partners can add on for $197. We built the Couples & Money Workshop on Day 3 specifically because money is the #1 thing couples fight about, and we want you both on the same page.</p>
+                </div>
+            </div>
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">Is Mr. Easy Money a licensed financial advisor?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">No, and we're upfront about that. Mr. Easy Money provides financial education, not personalized financial advice. However, our Inner Circle and VIP tiers include sessions with licensed CFPs, and our Advanced Strategies Panel features credentialed tax professionals and financial planners. We believe in transparency about credentials &mdash; something many programs in this space don't offer.</p>
+                </div>
+            </div>
+            <div class="border border-dark-border rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-6 flex items-center justify-between hover:bg-dark-card/50 transition-colors">
+                    <span class="font-bold">What if I can't fly to Miami?</span>
+                    <svg class="w-5 h-5 text-gray-400 transition-transform faq-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-answer px-6 text-gray-400">
+                    <p class="pb-6">The Livestream ticket ($197) gives you the full experience from home. HD video of every session, all worksheets and templates, chat participation, community access, and lifetime recordings. You'll miss the poolside cocktails, but you'll get everything else.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FINAL CTA ==================== -->
+<section class="py-24 hero-gradient relative overflow-hidden">
+    <div class="absolute top-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl float-animation"></div>
+    <div class="absolute bottom-10 left-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl float-animation-delayed"></div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 class="font-serif text-4xl sm:text-5xl md:text-6xl font-black mb-6">
+            Your Money <span class="text-gold">Glow-Up</span> Starts Here
+        </h2>
+        <p class="text-xl text-gray-300 mb-4 max-w-2xl mx-auto">
+            October 17-19, 2026. Fontainebleau Miami Beach. 150 seats.
+        </p>
+        <p class="text-gray-400 mb-10">
+            Join thousands who've already transformed their financial lives. Easy money, easy life.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#pricing" class="gold-gradient text-black font-bold px-10 py-4 rounded-full text-lg hover:opacity-90 transition-opacity pulse-gold inline-block">
+                Reserve Your Seat Now
+            </a>
+            <button onclick="document.getElementById('chat-toggle').click()" class="border-2 border-amber-500/50 text-amber-400 font-bold px-10 py-4 rounded-full text-lg hover:bg-amber-500/10 transition-colors">
+                Ask Mr. Easy Money a Question
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="bg-dark-card border-t border-dark-border py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-2xl">&#128176;</span>
+                    <span class="font-serif font-bold text-xl text-gold">Mr. Easy Money</span>
+                </div>
+                <p class="text-gray-400 text-sm">Financial education that's actually easy. Evidence-based, inclusive, and affordable.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#course" class="hover:text-gold transition-colors">About</a></li>
+                    <li><a href="#curriculum" class="hover:text-gold transition-colors">Curriculum</a></li>
+                    <li><a href="#venue" class="hover:text-gold transition-colors">Venue</a></li>
+                    <li><a href="#pricing" class="hover:text-gold transition-colors">Pricing</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Support</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#faq" class="hover:text-gold transition-colors">FAQ</a></li>
+                    <li><a href="#" class="hover:text-gold transition-colors">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-gold transition-colors">Scholarship Application</a></li>
+                    <li><a href="#" class="hover:text-gold transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Connect</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#" class="hover:text-gold transition-colors">Instagram</a></li>
+                    <li><a href="#" class="hover:text-gold transition-colors">TikTok</a></li>
+                    <li><a href="#" class="hover:text-gold transition-colors">YouTube</a></li>
+                    <li><a href="#" class="hover:text-gold transition-colors">Podcast</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-dark-border pt-8">
+            <p class="text-gray-500 text-xs text-center leading-relaxed max-w-3xl mx-auto">
+                <strong>Disclaimer:</strong> Mr. Easy Money provides financial education, not personalized financial advice.
+                We are not licensed financial advisors, tax professionals, or investment advisors. Content is for
+                educational purposes only. Always consult with a qualified financial professional before making
+                investment or financial planning decisions. Past results are not indicative of future performance.
+                All testimonials represent individual experiences and results may vary.
+            </p>
+            <p class="text-gray-600 text-xs text-center mt-4">&copy; 2026 Mr. Easy Money. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- FAQ Toggle Script -->
+<script>
+function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const arrow = btn.querySelector('.faq-arrow');
+    answer.classList.toggle('open');
+    arrow.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+</script>
+
+<!-- Chat Widget -->
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+
+</body>
+</html>
