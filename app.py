@@ -548,19 +548,47 @@ def voice_chat():
         print(f"[Voice] Step 2 FAILED: {e}")
         return jsonify({"error": f"Response generation failed: {str(e)}"}), 500
 
-    # Step 3: Generate TTS audio with Gemini
-    print(f"[Voice] Step 3: Generating TTS...")
-    audio_b64 = None
+    print(f"[Voice] Done! Returning text (TTS via separate /api/tts call)")
+    return jsonify({
+        "user_text": user_text,
+        "assistant_text": assistant_text,
+    })
+
+
+@app.route("/api/tts", methods=["POST"])
+def tts():
+    """Generate TTS audio for given text. Separate endpoint so voice chat isn't blocked."""
+    if not GEMINI_API_KEY:
+        return jsonify({"error": "TTS unavailable."}), 503
+
+    try:
+        from google import genai
+        from google.genai import types
+    except ImportError:
+        return jsonify({"error": "SDK not installed."}), 503
+
+    data = request.json or {}
+    text = data.get("text", "").strip()
+    if not text:
+        return jsonify({"error": "No text provided."}), 400
+
+    # Truncate to keep TTS fast (under ~150 chars = ~5s generation)
+    if len(text) > 300:
+        text = text[:297] + "..."
+
+    print(f"[TTS] Generating for {len(text)} chars...")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+
     try:
         tts_resp = client.models.generate_content(
             model="gemini-2.5-flash-preview-tts",
-            contents=assistant_text,
+            contents=f"Read the following text aloud naturally and expressively:\n\n{text}",
             config=types.GenerateContentConfig(
                 response_modalities=["AUDIO"],
                 speech_config=types.SpeechConfig(
                     voice_config=types.VoiceConfig(
                         prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                            voice_name="Puck"  # Light, playful, effeminate male voice
+                            voice_name="Puck"
                         )
                     )
                 ),
@@ -569,18 +597,13 @@ def voice_chat():
         for part in tts_resp.candidates[0].content.parts:
             if part.inline_data and part.inline_data.data:
                 wav_data = pcm_to_wav(part.inline_data.data)
-                import base64
-                audio_b64 = base64.b64encode(wav_data).decode("utf-8")
-                break
-    except Exception as e:
-        print(f"[Voice] Step 3 FAILED (non-fatal): {e}")
+                print(f"[TTS] Done: {len(wav_data)} bytes WAV")
+                return Response(wav_data, mimetype="audio/wav")
 
-    print(f"[Voice] Done! audio={'yes' if audio_b64 else 'no'}")
-    return jsonify({
-        "user_text": user_text,
-        "assistant_text": assistant_text,
-        "audio": audio_b64,
-    })
+        return jsonify({"error": "No audio generated."}), 500
+    except Exception as e:
+        print(f"[TTS] FAILED: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/starmap", methods=["POST"])

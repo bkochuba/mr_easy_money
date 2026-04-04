@@ -237,19 +237,15 @@
             addMessage("user", data.user_text);
             messages.push({ role: "user", content: data.user_text });
 
-            // Show assistant response
+            // Show assistant response immediately
             addMessage("assistant", data.assistant_text);
             messages.push({ role: "assistant", content: data.assistant_text });
 
             if (messages.length > 20) messages = messages.slice(-20);
 
-            // Play server-generated TTS audio (Gemini natural voice)
-            if (data.audio) {
-                playAudio(data.audio);
-            } else {
-                // Fallback to browser TTS if server TTS failed
-                speak(data.assistant_text);
-            }
+            // Fetch TTS audio separately (non-blocking)
+            document.getElementById("voice-status").textContent = "Generating voice...";
+            fetchAndPlayTTS(data.assistant_text);
 
         } catch (err) {
             console.error("Voice error:", err);
@@ -260,27 +256,45 @@
         }
     }
 
-    function playAudio(base64Wav) {
-        const bytes = atob(base64Wav);
-        const buf = new ArrayBuffer(bytes.length);
-        const arr = new Uint8Array(buf);
-        for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-        const blob = new Blob([buf], { type: "audio/wav" });
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        document.getElementById("voice-status").textContent = "Speaking...";
-        animateVoiceBars(true);
-        audio.onended = function () {
-            URL.revokeObjectURL(url);
-            document.getElementById("voice-status").textContent = "Tap mic to talk";
-            animateVoiceBars(false);
-        };
-        audio.onerror = function () {
-            URL.revokeObjectURL(url);
-            // Fallback to browser TTS
-            speak(messages[messages.length - 1]?.content || "");
-        };
-        audio.play();
+    async function fetchAndPlayTTS(text) {
+        try {
+            const res = await fetch("/api/tts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text }),
+            });
+
+            if (!res.ok) {
+                console.log("[Voice] TTS fetch failed, using browser fallback");
+                speak(text);
+                return;
+            }
+
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+
+            document.getElementById("voice-status").textContent = "Speaking...";
+            animateVoiceBars(true);
+
+            audio.onended = function () {
+                URL.revokeObjectURL(url);
+                document.getElementById("voice-status").textContent = "Tap mic to talk";
+                animateVoiceBars(false);
+            };
+            audio.onerror = function () {
+                URL.revokeObjectURL(url);
+                console.log("[Voice] Audio playback failed, using browser fallback");
+                speak(text);
+            };
+            audio.play().catch(function() {
+                // Autoplay blocked — fall back
+                speak(text);
+            });
+        } catch (err) {
+            console.log("[Voice] TTS error:", err);
+            speak(text);
+        }
     }
 
     // ========== Voice Bars Animation ==========
