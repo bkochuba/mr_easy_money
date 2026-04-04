@@ -553,7 +553,7 @@ def voice_chat():
                 speech_config=types.SpeechConfig(
                     voice_config=types.VoiceConfig(
                         prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                            voice_name="Orus"  # Smooth, confident male voice
+                            voice_name="Puck"  # Light, playful, effeminate male voice
                         )
                     )
                 ),
