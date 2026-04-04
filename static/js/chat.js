@@ -206,19 +206,28 @@
     async function sendVoice(audioBlob) {
         isStreaming = true;
         animateVoiceBars(true);
-        document.getElementById("voice-status").textContent = "Thinking...";
+        document.getElementById("voice-status").textContent = "Transcribing...";
+        console.log("[Voice] Sending audio:", audioBlob.size, "bytes, type:", audioBlob.type);
 
         try {
             const formData = new FormData();
             formData.append("audio", audioBlob, "voice.webm");
             formData.append("history", JSON.stringify(messages));
 
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
+            document.getElementById("voice-status").textContent = "Thinking...";
             const res = await fetch("/api/voice", {
                 method: "POST",
                 body: formData,
+                signal: controller.signal,
             });
+            clearTimeout(timeout);
 
+            console.log("[Voice] Response status:", res.status);
             const data = await res.json();
+            console.log("[Voice] Got response:", data.user_text?.substring(0, 50), "| audio:", !!data.audio);
 
             if (!res.ok) {
                 throw new Error(data.error || "Voice chat failed");

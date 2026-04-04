@@ -507,6 +507,7 @@ def voice_chat():
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     # Step 1: Transcribe audio with Gemini
+    print(f"[Voice] Step 1: Transcribing {len(audio_bytes)} bytes of audio...")
     try:
         transcribe_resp = client.models.generate_content(
             model="gemini-2.5-flash",
@@ -516,9 +517,11 @@ def voice_chat():
             ],
         )
         user_text = transcribe_resp.text.strip()
+        print(f"[Voice] Step 1 done: '{user_text[:80]}'")
         if not user_text:
             return jsonify({"error": "Couldn't understand the audio. Try again."}), 400
     except Exception as e:
+        print(f"[Voice] Step 1 FAILED: {e}")
         return jsonify({"error": f"Transcription failed: {str(e)}"}), 500
 
     # Step 2: Get Mr. Easy Money text response
@@ -529,6 +532,7 @@ def voice_chat():
         gemini_contents.append({"role": role, "parts": [{"text": msg["content"]}]})
     gemini_contents.append({"role": "user", "parts": [{"text": user_text}]})
 
+    print(f"[Voice] Step 2: Generating response...")
     try:
         chat_resp = client.models.generate_content(
             model="gemini-2.5-flash",
@@ -539,10 +543,13 @@ def voice_chat():
             },
         )
         assistant_text = chat_resp.text.strip()
+        print(f"[Voice] Step 2 done: '{assistant_text[:80]}'")
     except Exception as e:
+        print(f"[Voice] Step 2 FAILED: {e}")
         return jsonify({"error": f"Response generation failed: {str(e)}"}), 500
 
     # Step 3: Generate TTS audio with Gemini
+    print(f"[Voice] Step 3: Generating TTS...")
     audio_b64 = None
     try:
         tts_resp = client.models.generate_content(
@@ -566,13 +573,13 @@ def voice_chat():
                 audio_b64 = base64.b64encode(wav_data).decode("utf-8")
                 break
     except Exception as e:
-        print(f"TTS generation error (non-fatal): {e}")
-        # Non-fatal — will fall back to browser TTS
+        print(f"[Voice] Step 3 FAILED (non-fatal): {e}")
 
+    print(f"[Voice] Done! audio={'yes' if audio_b64 else 'no'}")
     return jsonify({
         "user_text": user_text,
         "assistant_text": assistant_text,
-        "audio": audio_b64,  # base64 WAV or None
+        "audio": audio_b64,
     })
 
 
