@@ -254,12 +254,22 @@
         }
     }
 
+    let currentAudio = null; // Track current playing audio
+
     async function fetchAndPlayTTS(text) {
+        // Stop any currently playing audio
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+
         document.getElementById("voice-status").textContent = "Generating voice...";
         animateVoiceBars(true);
+        console.log("[Voice] Fetching TTS for:", text.substring(0, 60) + "...");
+
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 120000); // 2 min timeout
+            const timeout = setTimeout(() => controller.abort(), 120000);
 
             const res = await fetch("/api/tts", {
                 method: "POST",
@@ -270,30 +280,42 @@
             clearTimeout(timeout);
 
             if (!res.ok) {
-                console.log("[Voice] TTS failed:", res.status);
+                const errText = await res.text();
+                console.log("[Voice] TTS failed:", res.status, errText);
                 document.getElementById("voice-status").textContent = "Voice unavailable. Tap mic to talk.";
                 animateVoiceBars(false);
                 return;
             }
 
             const blob = await res.blob();
-            console.log("[Voice] Got TTS audio:", blob.size, "bytes");
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
+            console.log("[Voice] Got TTS audio:", blob.size, "bytes, type:", blob.type);
+
+            // Decode into AudioContext for more reliable playback
+            const arrayBuf = await blob.arrayBuffer();
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuf);
+
+            console.log("[Voice] Decoded audio:", audioBuffer.duration.toFixed(1) + "s", audioBuffer.sampleRate + "Hz");
 
             document.getElementById("voice-status").textContent = "Speaking...";
 
-            audio.onended = function () {
-                URL.revokeObjectURL(url);
+            const source = audioCtx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioCtx.destination);
+
+            currentAudio = { pause: () => { try { source.stop(); } catch(e) {} audioCtx.close(); } };
+
+            source.onended = function () {
+                currentAudio = null;
+                audioCtx.close();
                 document.getElementById("voice-status").textContent = "Tap mic to talk";
                 animateVoiceBars(false);
+                console.log("[Voice] Playback complete");
             };
-            audio.onerror = function () {
-                URL.revokeObjectURL(url);
-                document.getElementById("voice-status").textContent = "Audio error. Tap mic to talk.";
-                animateVoiceBars(false);
-            };
-            await audio.play();
+
+            source.start(0);
+            console.log("[Voice] Playback started");
+
         } catch (err) {
             console.log("[Voice] TTS error:", err);
             document.getElementById("voice-status").textContent = err.name === "AbortError"
