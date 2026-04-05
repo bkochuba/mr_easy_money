@@ -643,8 +643,8 @@ def voice_chat():
             model="gemini-2.5-flash",
             contents=gemini_contents,
             config={
-                "system_instruction": SYSTEM_PROMPT + "\nKeep responses under 3 sentences since this is a voice conversation. Be punchy and conversational.\nIMPORTANT: You have a signature verbal tic — you casually drop 'bitch' at the end of sentences in an affectionate, hype-man way (like Jesse Pinkman or a best friend hyping you up). Examples: 'Let's make that money grow, bitch!', 'You're about to be debt-free, bitch!', 'Index funds, bitch — that's the move.' Use it naturally once or twice per response, never mean-spirited, always celebratory.",
-                "max_output_tokens": 512,
+                "system_instruction": SYSTEM_PROMPT + "\nCRITICAL: This is voice mode. Keep responses to 1-2 SHORT sentences max. Be extremely concise and punchy. No long explanations.\nIMPORTANT: You have a signature verbal tic — you casually drop 'bitch' at the end of sentences in an affectionate, hype-man way (like Jesse Pinkman or a best friend hyping you up). Examples: 'Let's make that money grow, bitch!', 'You're about to be debt-free, bitch!', 'Index funds, bitch — that's the move.' Use it naturally once per response, never mean-spirited, always celebratory.",
+                "max_output_tokens": 150,
             },
         )
         assistant_text = chat_resp.text.strip()
@@ -677,16 +677,18 @@ def tts():
     if not text:
         return jsonify({"error": "No text provided."}), 400
 
-    # Keep TTS text to complete sentences (avoids mid-sentence cutoff)
-    # Split on sentence boundaries and take enough to stay under ~400 chars
+    # Keep TTS short — max 2 complete sentences, max 200 chars
+    # This keeps generation under ~8 seconds
     import re
     sentences = re.split(r'(?<=[.!?])\s+', text)
     tts_text = ""
+    count = 0
     for s in sentences:
-        if len(tts_text) + len(s) > 400:
+        if count >= 2 or len(tts_text) + len(s) > 200:
             break
         tts_text += s + " "
-    text = tts_text.strip() or text[:400]
+        count += 1
+    text = tts_text.strip() or text[:200]
 
     print(f"[TTS] Generating for {len(text)} chars...")
     client = genai.Client(api_key=GEMINI_API_KEY)
