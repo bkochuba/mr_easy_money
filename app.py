@@ -643,7 +643,7 @@ def voice_chat():
             model="gemini-2.5-flash",
             contents=gemini_contents,
             config={
-                "system_instruction": SYSTEM_PROMPT + "\nKeep responses under 3 sentences since this is a voice conversation. Be punchy and conversational.",
+                "system_instruction": SYSTEM_PROMPT + "\nKeep responses under 3 sentences since this is a voice conversation. Be punchy and conversational.\nIMPORTANT: You have a signature verbal tic — you casually drop 'bitch' at the end of sentences in an affectionate, hype-man way (like Jesse Pinkman or a best friend hyping you up). Examples: 'Let's make that money grow, bitch!', 'You're about to be debt-free, bitch!', 'Index funds, bitch — that's the move.' Use it naturally once or twice per response, never mean-spirited, always celebratory.",
                 "max_output_tokens": 512,
             },
         )
